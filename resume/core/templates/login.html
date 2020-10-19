@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="columns is-mobile is-centered">
+        <div class="column is-8 had">
+            <div class="block has-text-centered m-5">
+                <h1 class="title m-3"> Log in </h1>
+
+                <form action="" method="post">
+                {% csrf_token %}
+
+                {{ form.as_p }}
+
+                <div class="field">
+
+                    <div class="control">
+                        <button class="button is-success">
+                            Log in
+                        </div>
+
+                    </div>
+                    
+                </div>
+
+            </form>
+            </div>
+
+
+
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css">
+
+
+    <title>{% block head_title %}{% endblock %}</title>
+    {% block extra_head %}
+    {% endblock %}
+  </head>
+  <body>
+   
+    <nav class="navbar is-light">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="{% url  'homepage' %}">
+                <strong> Resume Generator</strong>
+            </a>
+        </div>
+        <div class="navbar-menu  is-active">
+            <div class="navbar-end">
+                <div class="navbar-item">
+                    <div class="buttons">
+                        {% if request.user.is_authenticated %}
+                        <a href="{% url 'account_logout' %}" class="button is-danger"> <strong>log out</strong></a>
+                        {% else %}
+                        <a href="{% url 'account_login' %}" class="button is-light"> <strong>Log in</strong></a>
+                        <a href="{% url 'account_signup' %}" class="button is-success"> <strong>Sign Up</strong></a>
+                        {% endif %}
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>   
+    </nav>
+    <div class="container">
+      <div class="columns is-mobile is-centered">
+        <div class="column has-text-centered is-4">
+    {% block body %}
+    <div class="block  m-5">
+      {% if messages %}
+      
+      <h3 class="title">Messages:</h3>
+      
+        {% for message in messages %}
+        <div class="message">
+        <div class="message-body">{{message}}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    
+    
+    <div class="block m-5">
+      {% if user.is_authenticated %}
+      <h3 class="title">Menu:</h3>
+
+      <div class="tabs">
+      <ul>
+        
+        <li><a href="{% url 'account_email' %}">Change E-mail</a></li>
+        <li><a href="{% url 'account_logout' %}">Sign Out</a></li>
+    
+      </ul>
+      
+      </div>
+      {% endif %}
+    </div>
+    
+    <div>
+    {% block content %}
+    {% endblock %}
+    {% endblock %}
+    {% block extra_body %}
+    {% endblock %}
+  </div>
+</div>
+      </div>
+    </div>
+  </body>
+</html>
