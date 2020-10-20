@@ -33,7 +33,7 @@ class MySignupForm(SignupForm):
 
 class SkillForm(forms.ModelForm):
     class Meta:
-        model = Article
+        model = Skill
         fields = ['cv', 'title', 'note']
 
     def __init__(self, *args, **kwargs):
