@@ -46,14 +46,39 @@ def signup(request):
 
 @login_required
 def view_cvs(request):
-
-    cvs = Cv.objects.filter(author=request.user.id)
-    data = {'cvs':cvs}
+    try:
+        cvs = Cv.objects.filter(author=request.user.id)
+        if cvs != None:
+            data = {'cvs':cvs}
+            
+        else:
+            data = {'cvs':[{'title':'No cvs'}]}
+    except:
+        data = {'cvs':[{'title':'No cvs'}]}
     return render(request, 'cvs.html', data)
 
 @login_required
 def view_experiences(request):
-
-    experiences = Experience.objects.get(id=cv_id)
-    data = {'experiences':experiences}
+    try:
+        experciences = Experience.objects.get(author=request.user.id)
+    
+        if experciences != None:
+            data = {'experiences':experciences}
+        else: 
+            data = {'experiences':[{'title':'No experiences'}]}
+    except:
+         data = {'experiences':[{'title':'No experiences'}]}
     return render(request, 'experiences.html', data)
+
+@login_required
+def view_skills(request):
+    try:
+        skills = Skill.objects.get(author=request.user.id)
+    
+        if skills != None:
+            data = {'skills':skills}
+        else: 
+            data = {'skills':[{'title':'No skills'}]}
+    except:
+         data = {'skills':[{'title':'No skills'}]}
+    return render(request, 'skills.html', data)
