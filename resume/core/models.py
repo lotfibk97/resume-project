@@ -3,7 +3,22 @@ from django.conf import settings
 from .enums import note_choices,type_formation_choices
 
 
+
+class Cv(models.Model):
+    title = models.CharField(max_length=100, blank =True, null=True,verbose_name="title")
+    author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    photo = models.ImageField(upload_to = 'images/', null=True, default='images/default.png')
+
+    class Meta:
+        verbose_name = "Cv"
+
+    def __str__(self):
+        return  self.title
+
+
+
 class Experience(models.Model):
+    cv = models.ForeignKey(Cv,on_delete=models.CASCADE)
     author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     title = models.CharField(max_length=100, blank =True, null=True,verbose_name="Titre de l'experience")
     begin_date = models.DateField(verbose_name="date de debut", null = True, blank=True)
@@ -23,6 +38,7 @@ class Experience(models.Model):
 
 
 class Formation(models.Model):
+    cv = models.ForeignKey(Cv,on_delete=models.CASCADE)
     author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     title = models.CharField(max_length=100, blank =True, null=True,verbose_name="Titre de la formation")
     begin_date = models.DateField(verbose_name="date de debut", null = True, blank=True)
@@ -40,6 +56,7 @@ class Formation(models.Model):
         return str(self.title+" "+str(self.begin_date))
 
 class Skill(models.Model):
+    cv = models.ForeignKey(Cv,on_delete=models.CASCADE)
     author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     title = models.CharField(max_length=100, blank =True, null=True,verbose_name="Titre de la compétance")
     note = models.PositiveSmallIntegerField(default=0, choices=note_choices,blank=True,verbose_name="note de la compétance")
@@ -52,6 +69,7 @@ class Skill(models.Model):
 
 
 class Hobbie(models.Model):
+    cv = models.ForeignKey(Cv,on_delete=models.CASCADE)
     author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     title = models.CharField(max_length=100, blank =True, null=True,verbose_name="Titre de l'activité")
     class Meta:
@@ -63,6 +81,7 @@ class Hobbie(models.Model):
 
 
 class Langue(models.Model):
+    cv = models.ForeignKey(Cv,on_delete=models.CASCADE)
     author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     title = models.CharField(max_length=100, blank =True, null=True,verbose_name="langue")
     note_parler =  models.PositiveSmallIntegerField(default=0, choices=note_choices,blank=True,verbose_name="note parler")
@@ -74,20 +93,3 @@ class Langue(models.Model):
 
     def __str__(self):
         return str(self.title)
-
-class Cv(models.Model):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
-    photo = models.ImageField(upload_to = 'images/', null=True, default='images/default.png')
-    experiences = models.ForeignKey(Experience, on_delete=models.CASCADE)
-    formations = models.ForeignKey(Formation, on_delete=models.CASCADE)
-    skills = models.ForeignKey(Skill, on_delete=models.CASCADE)
-    hobbies = models.ForeignKey(Hobbie, on_delete=models.CASCADE)
-    langages = models.ForeignKey(Langue, on_delete=models.CASCADE)
-
-
-    class Meta:
-        verbose_name = "Cv"
-
-    def __str__(self):
-        return str(self.user)
-
