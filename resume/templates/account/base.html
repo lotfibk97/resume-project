@@ -11,9 +11,9 @@
     {% block extra_head %}
     {% endblock %}
   </head>
-  <body>
+  <body class="has-background-light">
    
-    <nav class="navbar is-light">
+    <nav class="navbar is-dark">
         <div class="navbar-brand">
             <a class="navbar-item" href="{% url  'homepage' %}">
                 <strong> Resume Generator</strong>
@@ -81,5 +81,16 @@
 </div>
       </div>
     </div>
+
+
+
+    <footer class="footer">
+      <div class="content has-text-centered">
+        <p>
+          <strong>Resume Generator</strong> by <a href="https://github.com/WassilDahi">Wassil dahimene</a> and   <a href="https://github.com/WassilDahi">Lotfi Bokhari</a>
+        </p>
+      </div>
+    </footer>
+
   </body>
 </html>

@@ -20,6 +20,7 @@ msgpack==0.6.2
 oauthlib==3.1.0
 packaging==20.3
 pep517==0.8.2
+Pillow==8.0.0
 progress==1.5
 pycparser==2.20
 PyJWT==1.7.1

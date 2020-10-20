@@ -1,5 +1,9 @@
 from allauth.account.forms import LoginForm, SignupForm
 from django import forms
+from datetime import date, time ,datetime
+from .models import *
+from .enums import note_choices
+
 
 class MyLoginForm(LoginForm):
     def __init__(self, *args, **kwargs):
@@ -26,3 +30,15 @@ class MySignupForm(SignupForm):
 
         # You must return the original result.
         return user
+
+class SkillForm(forms.ModelForm):
+    class Meta:
+        model = Article
+        fields = ['cv', 'title', 'note']
+
+    def __init__(self, *args, **kwargs):
+        super(SkillForm, self).__init__(*args, **kwargs)
+        self.fields['cv'].widget = forms.ModelMultipleChoiceField(queryset=Cv.objects.all())
+        self.fields['title'].widget=forms.TextInput(attrs={'type':'text','class':'input'})
+        self.fields['note'].widget=forms.ChoiceField(choices=note_choices)
+
