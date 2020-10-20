@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<div class="container">
+
+<div class="columns is-mobile is-centered">
+
+    <div class="column is-8">
+
+        <div class="block has-text-centered m-5">
+            <h1 class="title m-3"> Mes Cvs </h1>
+          </div>
+        {% for cv in cvs %}
+        <div class="block has-text-centered m-5">
+      <div class="card">
+  <div class="card-content">
+             
+            <p class="title m-3"> {{ cv.title }} </p>
+          </div>
+                     
+           <footer class="card-footer">
+     
+  <p class="card-footer-item">     
+   <span class="icon is-large">
+  <i class="fas fa-search fa-2x "></i>  </span> Voir
+    </p>
+
+      <p class="card-footer-item">     
+   <span class="icon is-large">
+  <i class="fas fa-edit fa-2x "></i>  </span> Modifier
+    </p>
+
+  <p class="card-footer-item">     
+   <span class="icon is-large">
+  <i class="fas fa-trash-alt fa-2x "></i>  </span> Supprimer
+    </p>
+
+  </footer>
+           </div> 
+
+           </div>
+
+        {% endfor %}
+
+    </div>
+</div>
+
+</div>
+
+
+
+
+
+{% endblock %}

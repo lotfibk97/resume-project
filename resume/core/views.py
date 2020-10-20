@@ -1,7 +1,12 @@
 from django.shortcuts import render,redirect,reverse
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login
 from django.contrib import messages
+from .models import *
+from django.contrib.auth.models import User
+
+
 
 
 def homepage(request):
@@ -39,3 +44,16 @@ def signup(request):
     return render(request,'signup.html',{'form':form})
 
 
+@login_required
+def view_cvs(request):
+
+    cvs = Cv.objects.filter(author=request.user.id)
+    data = {'cvs':cvs}
+    return render(request, 'cvs.html', data)
+
+@login_required
+def view_experiences(request):
+
+    experiences = Experience.objects.get(id=cv_id)
+    data = {'experiences':experiences}
+    return render(request, 'experiences.html', data)
