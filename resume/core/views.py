@@ -5,6 +5,8 @@ from django.contrib.auth import login
 from django.contrib import messages
 from .models import *
 from django.contrib.auth.models import User
+from .forms import SkillForm
+import sys
 
 
 
@@ -60,25 +62,42 @@ def view_cvs(request):
 @login_required
 def view_experiences(request):
     try:
-        experciences = Experience.objects.get(author=request.user.id)
-    
-        if experciences != None:
-            data = {'experiences':experciences}
+        experiences = Experience.objects.filter(author=request.user.id)
+        
+        if experiences != None:
+            data = {'experiences':experiences}
+            
         else: 
             data = {'experiences':[{'title':'No experiences'}]}
+            
     except:
          data = {'experiences':[{'title':'No experiences'}]}
+         
     return render(request, 'experiences.html', data)
+
+
 
 @login_required
 def view_skills(request):
-    try:
-        skills = Skill.objects.get(author=request.user.id)
+    form=SkillForm(request.POST or None)
     
+
+    if form.is_valid():
+        obj=form.save(commit=False)
+        obj.author=request.user
+        obj.save()
+
+    try:
+        skills = Skill.objects.filter(author=request.user.id)
+
         if skills != None:
-            data = {'skills':skills}
+            data = {'skills':skills,'form':form}
+            
+            
         else: 
-            data = {'skills':[{'title':'No skills'}]}
-    except:
-         data = {'skills':[{'title':'No skills'}]}
+            data = {'skills':[{'title':'No skills'}],'form':form}
+            
+    except ValueError:
+         data = {'skills':[{'title':'No skills'}],'form':form}
+         print("Unexpected error:", sys.exc_info()[0])
     return render(request, 'skills.html', data)
