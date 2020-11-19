@@ -5,7 +5,7 @@ from django.contrib.auth import login
 from django.contrib import messages
 from .models import *
 from django.contrib.auth.models import User
-from .forms import SkillForm
+from .forms import SkillForm,ExperienceForm
 import sys
 
 
@@ -61,17 +61,25 @@ def view_cvs(request):
 
 @login_required
 def view_experiences(request):
+    form=ExperienceForm(request.POST or None)
+
+    if form.is_valid():
+        obj=form.save(commit=False)
+        obj.author=request.user
+        obj.save()
+
     try:
         experiences = Experience.objects.filter(author=request.user.id)
         
         if experiences != None:
-            data = {'experiences':experiences}
+            data = {'experiences':experiences,'form':form}
             
         else: 
-            data = {'experiences':[{'title':'No experiences'}]}
+            data = {'experiences':[{'title':'No experiences'}],'form':form}
             
-    except:
-         data = {'experiences':[{'title':'No experiences'}]}
+    except ValueError:
+         data = {'experiences':[{'title':'No experiences'}],'form':form}
+         print("Unexpected error:", sys.exc_info()[0])
          
     return render(request, 'experiences.html', data)
 
@@ -88,6 +96,7 @@ def view_skills(request):
         obj.save()
 
     try:
+        
         skills = Skill.objects.filter(author=request.user.id)
 
         if skills != None:

@@ -56,7 +56,7 @@ class Formation(models.Model):
         return str(self.title+" "+str(self.begin_date))
 
 class Skill(models.Model):
-    cv = models.ForeignKey(Cv,on_delete=models.CASCADE)
+    cv = models.ManyToManyField(Cv)
     author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     title = models.CharField(max_length=100, blank =True, null=True,verbose_name="Titre de la compétance")
     note = models.PositiveSmallIntegerField(default=0, choices=note_choices,blank=True,verbose_name="note de la compétance")

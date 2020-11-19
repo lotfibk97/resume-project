@@ -36,3 +36,8 @@ class SkillForm(forms.ModelForm):
         model = Skill
         fields = ['cv', 'title', 'note']
 
+class ExperienceForm(forms.ModelForm):
+    class Meta:
+        model = Experience
+        fields = ['cv', 'title','begin_date','end_date','etablissement','lieu','description']
+
