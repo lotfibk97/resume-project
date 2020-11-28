@@ -34,10 +34,59 @@ class MySignupForm(SignupForm):
 class SkillForm(forms.ModelForm):
     class Meta:
         model = Skill
-        fields = ['cv', 'title', 'note']
+        fields = ['title', 'note']
 
 class ExperienceForm(forms.ModelForm):
+
+
     class Meta:
         model = Experience
-        fields = ['cv', 'title','begin_date','end_date','etablissement','lieu','description']
+        fields = ['title','begin_date','end_date','etablissement','lieu','description']
 
+    def __init__(self, *args, **kwargs):
+        super(ExperienceForm, self).__init__(*args, **kwargs)
+        self.fields['begin_date'].widget = forms.DateInput(attrs={'type': 'date'})
+        self.fields['end_date'].widget = forms.DateInput(attrs={'type': 'date'})
+
+class FormationForm(forms.ModelForm):
+
+
+    class Meta:
+        model = Formation
+        fields = ['title','begin_date','end_date','etablissement','lieu','description']
+
+    def __init__(self, *args, **kwargs):
+        super(FormationForm, self).__init__(*args, **kwargs)
+        self.fields['begin_date'].widget = forms.DateInput(attrs={'type': 'date'})
+        self.fields['end_date'].widget = forms.DateInput(attrs={'type': 'date'})
+
+
+class LangueForm(forms.ModelForm):
+
+    class Meta:
+        model = Langue
+        fields = ['title','note_parler','note_ecrit']
+        labels = {
+            "title": "Langue",
+            "note_parler": "Note parler",
+            "note_ecrit": "Note écrit",
+        }
+
+
+class HobbieForm(forms.ModelForm):
+
+    class Meta:
+        model = Hobbie
+        fields = ['title']
+        labels = {
+            "title": "Nom de l'activité",
+        }
+
+
+class CvForm(forms.ModelForm):
+
+    skills = forms.ModelMultipleChoiceField(queryset=Skill.objects.all(), widget=forms.CheckboxSelectMultiple)
+    class Meta:
+        model = Cv
+        fields = ['title','skills','formations','experiences','langues','hobbies','photo']
+        

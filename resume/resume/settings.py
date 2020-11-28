@@ -41,7 +41,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = DEFAULT_FROM_EMAIL = 'wassildahi@gmail.com'
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST_PASSWORD = 'Xbttjm52@00'
 
 # Application definition
 

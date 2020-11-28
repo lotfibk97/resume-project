@@ -4,7 +4,7 @@
   <div class="columns is-mobile is-centered">
     <div class="column is-8">
       <div class="block has-text-centered m-5">
-        <h1 class="title m-3">Mes expériences</h1>
+        <h1 class="title m-3">Mes formations</h1>
         <div class="box">
               <form action="" method="post">
                 {% csrf_token %}
@@ -24,14 +24,14 @@
 <div class="container">
   <div class="columns is-multiline is-mobile">
     <div class="column is-quarter">
-    {% for experience in experiences %}
+    {% for formation in formations %}
     
       <div class="block has-text-centered m-5">
 
-            <p class="title m-3">{{ experience.title }}</p>
-            <p>{{ experience.begin_date }} -- {{ experience.end_date }} </p>
-            <p>{{ experience.etablissement }} -- {{ experience.lieu }} </p>
-            <form action="{% url 'delete_experience' experience.id %}" method="post">
+            <p class="title m-3">{{ formation.title }}</p>
+            <p>{{ formation.begin_date }} -- {{ formation.end_date }} </p>
+            <p>{{ formation.etablissement }} -- {{ formation.lieu }} </p>
+            <form action="{% url 'delete_formation' formation.id %}" method="post">
               {% csrf_token %}
           <button type='submit'> supprimer </button>
           </form>

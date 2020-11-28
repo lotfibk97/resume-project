@@ -1,171 +1,76 @@
-{% extends 'base.html' %}
-
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 
 <div class="container">
-
-<div class="columns is-mobile is-centered">
-
+  <div class="columns is-mobile is-centered">
     <div class="column is-8">
+      <div class="block has-text-centered m-5">
+        <h1 class="title m-3">Mes Skills</h1>
+        <div class="box">
+          <div class="buttons are-large is-centered">
+              <form action="" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
 
-        <div class="block has-text-centered m-5">
-            <h1 class="title m-3"> Mes Skills </h1>
-            <div class="box">
-            <div class="buttons are-large is-centered">
-               <a class="button is-centered" id="addskill">
-                    <span class="icon is-large">
-                   <i class="fas fa-plus fa-2x "></i>  </span> 
-                   <span>Ajouter</span>
-                    </a>
-               
-            </div>
+                <button type="submit"> Ajouter </button>
+          
+          
+              </form>
+              
+            </a>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="columns is-multiline is-mobile">
+    <div class="column is-quarter">
+    {% for skill in skills %}
+    
+      <div class="block has-text-centered m-5">
+
+            <p class="title m-3">{{ skill.title }} 
+              {% with ''|center:skill.note as range %}
+              {% if range|length == 4  %}
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              {% elif  range|length == 3  %}
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star-o"></i>
+              {% elif  range|length == 2  %}
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star-o"></i>
+              <i class="fa fa-star-o"></i>
+              {% elif  range|length == 1  %}
+              <i class="fa fa-star"></i>
+              <i class="fa fa-star-o"></i>
+              <i class="fa fa-star-o"></i>
+              <i class="fa fa-star-o"></i>
+              {% else %}
+              <i class="fa fa-star-o"></i>
+              <i class="fa fa-star-o"></i>
+              <i class="fa fa-star-o"></i>
+              <i class="fa fa-star-o"></i>
+              {% endif %}
+              {% endwith %}
+              </p>
+            <form action="{% url 'delete_skill' skill.id %}" method="post">
+              {% csrf_token %}
+          <button type='submit'> supprimer </button>
+          </form>
         </div>
 
 
-
-    </div>
-</div>
-
-</div>
-
-
-        <div class="container">
-
-          <div class="columns is-multiline is-mobile">
-          
-              
-        {% for skill in skills %}
-        <div class="column  is-quarter">
- <div class="block has-text-centered m-5">
-      <div class="card">
-  <div class="card-content">
-             
-            <p class="title m-3"> {{ skill.title }} </p>
-          </div>
-
-
-            <footer class="card-footer">
-    
-
-      <p class="card-footer-item">     
-   <span class="icon is-large">
-  <i class="fas fa-edit fa-2x "></i>  </span> Modifier
-    </p>
-
-  <p class="card-footer-item">     
-   <span class="icon is-large">
-  <i class="fas fa-trash-alt fa-2x "></i>  </span> Supprimer
-    </p>
-
-  </footer>
-             
-           </div>
-           </div>
-
-           <div class="modal" id="myModal">
-            <div class="modal-background"></div>
-            <div class="modal-card">
-              <header class="modal-card-head">
-                <p class="modal-card-title">Modal title</p>
-                <button class="delete" aria-label="close" data-bulma-modal="close"></button>
-              </header>
-              <section class="modal-card-body">
-                <form action="" method="post">
-                    {% csrf_token %}
-                    {% for field in form %}
-                    <div class="field">
-                        
-                            {{field}}
-
-                    </div>
-                    {% endfor %}
-                    <footer class="modal-card-foot">
-                        <button class="button is-success"  type="submit" value="Submit">Save changes</button>
-                        <button class="button" data-bulma-modal="close">Cancel</button>
-                      </footer>
-
-                </form>
-              </section>
-
-            </div>
-          </div>
-</div>
-
         {% endfor %}
-           
-           </div>
-           </div>
+      </div>
+    </div>
 
 
-<script>
-
-
-class BulmaModal {
-	constructor(selector) {
-		this.elem = document.querySelector(selector)
-		this.close_data()
-	}
-	
-	show() {
-		this.elem.classList.toggle('is-active')
-		this.on_show()
-	}
-	
-	close() {
-		this.elem.classList.toggle('is-active')
-		this.on_close()
-	}
-	
-	close_data() {
-		var modalClose = this.elem.querySelectorAll("[data-bulma-modal='close'], .modal-background")
-		var that = this
-		modalClose.forEach(function(e) {
-			e.addEventListener("click", function() {
-				
-				that.elem.classList.toggle('is-active')
-
-				var event = new Event('modal:close')
-
-				that.elem.dispatchEvent(event);
-			})
-		})
-	}
-	
-	on_show() {
-		var event = new Event('modal:show')
-	
-		this.elem.dispatchEvent(event);
-	}
-	
-	on_close() {
-		var event = new Event('modal:close')
-	
-		this.elem.dispatchEvent(event);
-	}
-	
-	addEventListener(event, callback) {
-		this.elem.addEventListener(event, callback)
-	}
-}
-
-var btn = document.querySelector("#addskill")
-var mdl = new BulmaModal("#myModal")
-
-btn.addEventListener("click", function () {
-	mdl.show()
-})
-
-mdl.addEventListener('modal:show', function() {
-	console.log("opened")
-})
-
-mdl.addEventListener("modal:close", function() {
-	console.log("closed")
-})
-
-
-</script>
-
-{% endblock %}
+    {% endblock %}
