@@ -9,6 +9,48 @@ from .forms import SkillForm,ExperienceForm,LangueForm,HobbieForm,HobbieForm,For
 import sys
 from django import forms
 
+from django.conf import settings
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+
+
+import pdfkit
+from django.template import loader
+
+def create_pdf(request,cv_id):
+    cv = get_object_or_404(Cv, pk=cv_id,author=request.user.id)
+    context = {'user': request.user,'cv':cv}
+    html = loader.render_to_string('cv_tttt.html', context)
+    output= pdfkit.from_string(html, output_path=False)
+    response = HttpResponse(content_type="application/pdf")
+    response.write(output)
+    return response
+
+
+def render_pdf(request, cv_id, download='0'):
+    cv = get_object_or_404(Cv, pk=cv_id,author=request.user.id)
+    template_path = 'cv_test.html'
+    context = {'user': request.user,'cv':cv}
+    # Create a Django response object, and specify content_type as pdf
+    response = HttpResponse(content_type='application/pdf')
+
+    if download=='1':
+        response['Content-Disposition'] = 'attachment; filename="cv.pdf"'
+    else:
+        response['Content-Disposition'] = 'filename="cv.pdf"'
+
+    # find the template and render it.
+    template = get_template(template_path)
+    html = template.render(context)
+
+    # create a pdf
+    pisa_status = pisa.CreatePDF(
+       html, dest=response)
+    # if error then show some funy view
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
 
 
 def homepage(request):
@@ -51,7 +93,11 @@ def view_cvs(request):
     form=CvForm(request.POST or None)
 
     form.fields['skills']=forms.ModelMultipleChoiceField(queryset=Skill.objects.filter(author=request.user.id), widget=forms.CheckboxSelectMultiple)
-
+    form.fields['langues']=forms.ModelMultipleChoiceField(queryset=Langue.objects.filter(author=request.user.id), widget=forms.CheckboxSelectMultiple)
+    form.fields['experiences']=forms.ModelMultipleChoiceField(queryset=Experience.objects.filter(author=request.user.id), widget=forms.CheckboxSelectMultiple)
+    form.fields['formations']=forms.ModelMultipleChoiceField(queryset=Formation.objects.filter(author=request.user.id), widget=forms.CheckboxSelectMultiple)
+    form.fields['hobbies']=forms.ModelMultipleChoiceField(queryset=Hobbie.objects.filter(author=request.user.id), widget=forms.CheckboxSelectMultiple)
+    
     if form.is_valid():
         obj=form.save(commit=False)
         obj.author=request.user
@@ -99,6 +145,24 @@ def view_langues(request):
          
     return render(request, 'langues.html', data)
 
+
+@login_required
+def view_profile(request):
+
+         
+    return render(request, 'profile.html')
+
+
+@login_required
+def view_single_cv(request,cv_id):
+
+    cv = get_object_or_404(Cv, pk=cv_id,author=request.user.id)
+
+    data={}
+    if cv != None:
+        data={'cv':cv}
+         
+    return render(request, 'single_cv.html', data)
 
 @login_required
 def view_hobbies(request):

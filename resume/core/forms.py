@@ -88,5 +88,5 @@ class CvForm(forms.ModelForm):
     skills = forms.ModelMultipleChoiceField(queryset=Skill.objects.all(), widget=forms.CheckboxSelectMultiple)
     class Meta:
         model = Cv
-        fields = ['title','skills','formations','experiences','langues','hobbies','photo']
+        fields = ['title','skills','formations','experiences','langues','hobbies']
         

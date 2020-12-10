@@ -28,10 +28,13 @@
                     {% if request.user.is_authenticated %}
                     <div class="navbar-item has-dropdown is-hoverable">
                         <a class="navbar-link">
-                          Profile
+                          <i class="fa fa-user"></i>
                         </a>
                 
                         <div class="navbar-dropdown">
+                          <a class="navbar-item"  href="{% url 'view_profile' %}">
+                            Mon profile
+                          </a>
                           <a class="navbar-item"  href="{% url 'view_cvs' %}">
                             My cvs
                           </a>
@@ -44,7 +47,7 @@
                           <a class="navbar-item"  href="{% url 'view_langues' %}">
                             Mes langues
                           </a>
-                          <a class="navbar-item"  href="{% url 'view_langues' %}">
+                          <a class="navbar-item"  href="{% url 'view_hobbies' %}">
                             Mes hobbies
                           </a>
                           <a class="navbar-item"  href="{% url 'view_formations' %}">

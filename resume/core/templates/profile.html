@@ -1,0 +1,22 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="container">
+  <div class="columns is-mobile is-centered">
+    <div class="column is-8">
+      <div class="block has-text-centered m-5">
+        <h1 class="title m-3">Mon profil</h1>
+        <div class="box">
+        <p> {{ user.profile.nom }} </p>
+        <p> {{ user.profile.prenom }} </p>
+        <p> {{ user.profile.phone }} </p>
+        <p> {{ user.profile.description }} </p>
+        <p> {{ user.profile.adresse }} </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  {% endblock %}

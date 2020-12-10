@@ -21,8 +21,11 @@
   <div class="columns is-multiline is-mobile">
     <div class="column is-quarter">
       {% for cv in cvs %}
-    
+
         <p>{{ cv.title }}</p>
+        <form action="{% url 'view_single_cv' cv.id %}" method='GET'>
+<button type='submit'> Voir</button>
+</form>
         {% for skill in cv.skills.all %}
 
         <p>{{ skill.title }}</p>

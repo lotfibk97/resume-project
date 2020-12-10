@@ -1,0 +1,97 @@
+<html>
+<head>
+
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+</head>
+
+<body>
+	<i class="fa fa-star" aria-hidden="true"></i>
+     <hr>
+    <h1>  {{cv.author.profile.nom}} {{cv.author.profile.prenom}} | {{cv.title}} </h1>
+    <h3> Description : {{cv.author.profile.description}} </p>
+    <h3> Téléphone : {{cv.author.profile.phone}} </p>
+    <h3> Adresse : {{cv.author.profile.adresse}} </h3>
+     <hr>
+    <h2> Compétences </h2>
+    {% for skill in cv.skills.all %}
+       <p>{{ skill.title }}
+	   	      {% with ''|center:skill.note as range %}
+              {% if range|length == 4  %}
+<span>✦✦✦✦<span>
+              {% elif  range|length == 3  %}
+<span>✦✦✦✧<span>
+              {% elif  range|length == 2  %}
+<span>✦✦✧✧<span>
+              {% elif  range|length == 1  %}
+<span>✦✧✧✧<span>
+              {% else %}
+<span>✧✧✧✧<span> 
+              {% endif %}
+              {% endwith %} </p>
+    {% endfor %}
+     <hr>
+	     <h2> Expériences </h2>
+    {% for experience  in cv.experiences.all %}
+       <p>- {{ experience.title }} | {{ experience.begin_date }} - {{ experience.end_date}} | {{ experience.etablissement }} | {{ experience.lieu }} </p>
+	   <p>{{ experience.description }} </p>
+    {% endfor %}
+	     <hr>
+	     <h2> Formations </h2>
+        {% for formation in cv.formations.all %}
+              <p> - {{ formation.title }} | {{ formation.begin_date }} - {{ formation.end_date}} | {{ formation.etablissement }} | {{ formation.lieu }} </p>
+	   <p>{{ formation.description }} </p>
+    {% endfor %}
+	          <hr>
+		  	     <h2> Langues </h2>
+        {% for langue in cv.langues.all %}
+       <p>- {{ langue.title }}</p>
+	   <p>   <span> Note parler           {% with ''|center:langue.note_parler as range %}
+              {% if range|length == 4  %}
+<span>✦✦✦✦<span>
+              {% elif  range|length == 3  %}
+<span>✦✦✦✧<span>
+              {% elif  range|length == 2  %}
+<span>✦✦✧✧<span>
+              {% elif  range|length == 1  %}
+<span>✦✧✧✧<span>
+              {% else %}
+<span>✧✧✧✧<span> 
+              {% endif %}
+              {% endwith %}
+              | <span> Note écrit
+              {% with ''|center:langue.note_ecrit as range %}
+              {% if range|length == 4  %}
+<span>✦✦✦✦<span>
+              {% elif  range|length == 3  %}
+<span>✦✦✦✧<span>
+              {% elif  range|length == 2  %}
+<span>✦✦✧✧<span>
+              {% elif  range|length == 1  %}
+<span>✦✧✧✧<span>
+              {% else %}
+<span>✧✧✧✧<span> 
+              {% endif %}
+              {% endwith %}</p>
+    {% endfor %}
+
+     <hr>
+	     <h2> Loisirs </h2>	 
+        {% for hobbie in cv.hobbies.all %}
+       <p>- {{ hobbie.title }}</p>
+    {% endfor %}
+
+</body>
+</html>
+
+<!--
+    author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    title = models.CharField(max_length=100, blank =True, null=True,verbose_name="Titre de l'experience")
+    begin_date = models.DateField(verbose_name="date de debut", null = True, blank=True)
+    end_date = models.DateField(verbose_name="date de fin", null = True, blank=True)
+    etablissement = models.CharField(max_length=100, blank =True, null=True,verbose_name="Etablissement")
+    lieu = models.CharField(max_length=100, blank =True, null=True,verbose_name="Lieu")
+    description = models.TextField(blank = True,
+                            verbose_name="description", null=True)
+						-->

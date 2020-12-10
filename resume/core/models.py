@@ -1,6 +1,10 @@
 from django.db import models
 from django.conf import settings
 from .enums import note_choices,type_formation_choices
+from django.contrib.auth.models import User
+
+
+
 
 class Skill(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
@@ -78,6 +82,23 @@ class Langue(models.Model):
         return str(self.title)
 
 
+class Profile(models.Model):
+    user = models.OneToOneField(User,null=True,on_delete=models.CASCADE)
+    nom = models.CharField(max_length=10, blank =True, null=True,verbose_name="nom")
+    prenom = models.CharField(max_length=10, blank =True, null=True,verbose_name="prenom")
+    description=models.TextField(blank=True,verbose_name='description')
+
+    phone = models.CharField(max_length=15, blank =True, null=True,verbose_name="phone")
+    adresse = models.CharField(max_length=50, blank =True, null=True,verbose_name="adresse")
+
+    class Meta:
+        verbose_name = "Profile"
+
+    def __str__(self):
+        return  str(self.nom) + str(self.prenom)
+
+
+
 class Cv(models.Model):
     skills= models.ManyToManyField(Skill)
     experiences=models.ManyToManyField(Experience)
@@ -86,7 +107,7 @@ class Cv(models.Model):
     formations=models.ManyToManyField(Formation)
     title = models.CharField(max_length=100, blank =True, null=True,verbose_name="title")
     author = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
-    photo = models.ImageField(upload_to = 'images/', null=True, default='images/default.png')
+    
 
     class Meta:
         verbose_name = "Cv"

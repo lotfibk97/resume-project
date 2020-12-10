@@ -2,10 +2,15 @@ from django.contrib import admin
 from django.urls import path, include
 from core.views import *
 from django.contrib.auth import views as v
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('',homepage,name='homepage'),
+    path('render_pdf/<int:cv_id>',create_pdf,name='render_pdf'),
     path('cvs/',view_cvs,name='view_cvs'),
+    path('profile/',view_profile,name='view_profile'),
+    path('cvs/<int:cv_id>',view_single_cv,name='view_single_cv'),
     path('experiences/',view_experiences,name='view_experiences'),
     path('skills/',view_skills,name='view_skills'),
     path('langues/',view_langues,name='view_langues'),
@@ -24,4 +29,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
 
+
 ]
+
+
+if settings.DEBUG:
+        urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

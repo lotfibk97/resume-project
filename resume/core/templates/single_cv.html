@@ -1,0 +1,40 @@
+<html>
+
+<body>
+     <hr>
+    <h1> {{cv.author.profile.nom}} </h1>
+    <h1> {{cv.author.profile.prenom}} </h1>
+    <h1> {{cv.author.profile.description}} </h1>
+    <h1> {{cv.author.profile.phone}} </h1>
+    <h1> {{cv.author.profile.adresse}} </h1>
+     <hr>
+    <h1> {{cv.title}} </h1>
+    <hr>
+    {% for skill in cv.skills.all %}
+       <p>{{ skill.title }}</p>
+    {% endfor %}
+     <hr>
+    {% for experience  in cv.experiences.all %}
+       <p>{{ experience.title }}</p>
+    {% endfor %}
+     <hr>
+        {% for hobbie in cv.hobbies.all %}
+       <p>{{ hobbie.title }}</p>
+    {% endfor %}
+          <hr>
+        {% for langue in cv.langues.all %}
+       <p>{{ langue.title }}</p>
+    {% endfor %}
+     <hr>
+        {% for formation in cv.formations.all %}
+       <p>{{ formation.title }}</p>
+    {% endfor %}
+
+
+
+    <form action="{% url 'render_pdf' cv_id=cv.id %}" method="post">
+              {% csrf_token %}
+          <button type='submit'> Exporter en PDF </button>
+          </form>
+</body>
+</html>
