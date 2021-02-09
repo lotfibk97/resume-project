@@ -238,32 +238,175 @@ def view_formations(request):
     return render(request, 'formations.html', data)
 
 
-
-@login_required
+#
+#@login_required
+#def view_skills(request):
+#    form=SkillForm(request.POST or None)
+#    
+#
+#    if form.is_valid():
+#        obj=form.save(commit=False)
+#        obj.author=request.user
+#        obj.save()
+#
+#    try:
+#        
+#        skills = Skill.objects.filter(author=request.user.id)
+#
+#        if skills != None:
+#            data = {'skills':skills,'form':form}
+#            
+#            
+#        else: 
+#            data = {'skills':[{'title':'No skills'}],'form':form}
+#            
+#    except ValueError:
+#         data = {'skills':[{'title':'No skills'}],'form':form}
+#         print("Unexpected error:", sys.exc_info()[0])
+#    return render(request, 'skills.html', data)
+#
+@login_required(login_url='/accounts/login')
 def view_skills(request):
-    form=SkillForm(request.POST or None)
-    
+    """ skills of the actual user """
+    skills = Skill.objects.filter(author=request.user.id)
+    data = {'skills':skills,  'skills_active':"active"}
+    return render(request, 'skills.html', data)
 
-    if form.is_valid():
-        obj=form.save(commit=False)
-        obj.author=request.user
-        obj.save()
+@login_required(login_url='/accounts/login')
+def add_skill(request, user):
+    """ add a skill """
+    if request.method == "POST":
+        form = SkillForm(request.POST or None)
+        
+        if form.is_valid():
+            """ if the form is valid """
+            obj = form.save(commit=False)
+            obj.author=request.user
+            obj.save()
+            messages.success(request, "La compétence a été ajouté avec succés!")
+            return redirect(reverse('view_skills'))
+            """ redirect to skills list """
+
+        else:
+            for field in form:
+                if field.errors:
+                    for error in field.errors:
+                        messages.error(request, error)
+            return redirect(reverse("view_skills"))
+            """ redirect to skills list """
+    else:
+        form = SkillForm()
+        #print(form)
+        data = {'form':form}
+        return render(request, 'add_skill.html', data)
+
+@login_required(login_url='/accounts/login')
+def edit_skill(request,id,):
+    
+    try:
+        skill = Skill.objects.get(id=id2)
+        """ get the skill with id = id """
+
+        if request.method == "POST":
+
+            form = SkillForm(request.POST or None,instance=skill)
+
+            if form.is_valid():
+                """ if the form is valid """
+
+                obj = form.save(commit=False)
+                # obj.logo = request.FILES["logo"]
+                obj.save()
+                messages.success(request, "Les données de la compétence ont été modifiées "
+                                          "avec succès!")
+                """ show success message """
+
+                return redirect(reverse('view_skills'))
+                """ redirect to skills list """
+            else:
+                """ if the form is invalid """
+
+                for field in form:
+                    if field.errors:
+                        for error in field.errors:
+                            messages.error(request, error)
+                            """ show error message """
+
+                return redirect(reverse("view_skills"))
+                """ redirect to skills list """
+        else:
+            form = SkillForm(instance=examination_room)
+            data = {'skill':skill,'form':form}
+            return render(request, 'edit_skill.html',data)
+
+    except Skill.DoesNotExist:
+        """ if the doctor with id = id does not exist"""
+
+        messages.error(request, "La compétence n'existe pas")
+        """ show error message """
+
+        return redirect(reverse("view_skills"))
+        """ redirect to skills list """
+
+@login_required(login_url='/accounts/login')
+def delete_skill(request, id ):
+    """ delete skill where id = id"""
 
     try:
-        
-        skills = Skill.objects.filter(author=request.user.id)
+        skill = Skill.objects.get(id=id)
+        """ get the skill with id = id """
+        valid = False
+        if skill != None:
+            valid = True
+        #print(valid)
+        if valid:
+            """ if pressed button is Valider  """
+            try:
+                skill.delete()
+                """ delete the doctor """
+                messages.success(request, "La compétence a été supprimé avec "
+                                          "succès.")
+                """ show success message """
+                return redirect(reverse('view_skills'))
+                """ redirect to skills list """
 
-        if skills != None:
-            data = {'skills':skills,'form':form}
+            except Skill.DoesNotExist:
+                """
+                if the skill with id = id does not exist anymore
+                """
+
+                messages.error(request, "La compétence n'existe plus")
+                """ show error message """
+
+                return redirect(reverse('view_skills'))
+                """ redirect to skills list """
+
             
-            
-        else: 
-            data = {'skills':[{'title':'No skills'}],'form':form}
-            
-    except ValueError:
-         data = {'skills':[{'title':'No skills'}],'form':form}
-         print("Unexpected error:", sys.exc_info()[0])
-    return render(request, 'skills.html', data)
+
+            except:
+                """
+                if there are other exception
+                """
+
+                messages.error(request, "Erreur lors de la suppression!")
+                """ show error message """
+
+                return redirect(reverse('view_skills'))
+                """ redirect to skills list """
+
+        data = {'skill':skill}
+        return render(request, 'healthcare/delete_skill.html', data)
+
+    except Skill.DoesNotExist:
+        """
+        if the skill with id = id does not exist
+        """
+
+        messages.error(request, "La compétence n'existe pas")
+        """ show error message """
+
+        return redirect(reverse('view_skills'))
+        """ redirect to skills  list """   
 
 @login_required
 def delete_cv(request,cv_id):
