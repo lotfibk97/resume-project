@@ -189,57 +189,344 @@ def view_hobbies(request):
          
     return render(request, 'hobbies.html', data)
 
-@login_required
+#@login_required
+#def view_experiences(request):
+#    form=ExperienceForm(request.POST or None)
+#
+#    if form.is_valid():
+#        obj=form.save(commit=False)
+#        obj.author=request.user
+#        obj.save()
+#
+#    try:
+#        experiences = Experience.objects.filter(author=request.user.id)
+#        
+#        if experiences != None:
+#            data = {'experiences':experiences,'form':form}
+#            
+#        else: 
+#            data = {'experiences':[{'title':'No experiences'}],'form':form}
+#            
+#    except ValueError:
+#         data = {'experiences':[{'title':'No experiences'}],'form':form}
+#         print("Unexpected error:", sys.exc_info()[0])
+#         
+#    return render(request, 'experiences.html', data)
+
+@login_required(login_url='/accounts/login')
 def view_experiences(request):
-    form=ExperienceForm(request.POST or None)
-
-    if form.is_valid():
-        obj=form.save(commit=False)
-        obj.author=request.user
-        obj.save()
-
-    try:
-        experiences = Experience.objects.filter(author=request.user.id)
-        
-        if experiences != None:
-            data = {'experiences':experiences,'form':form}
-            
-        else: 
-            data = {'experiences':[{'title':'No experiences'}],'form':form}
-            
-    except ValueError:
-         data = {'experiences':[{'title':'No experiences'}],'form':form}
-         print("Unexpected error:", sys.exc_info()[0])
-         
+    """ experiences of the actual user """
+    experieces = Experience.objects.filter(author=request.user.id)
+    data = {'experiences':experiences,  'experiences_active':"active"}
     return render(request, 'experiences.html', data)
 
-@login_required
-def view_formations(request):
-    form=FormationForm(request.POST or None)
+@login_required(login_url='/accounts/login')
+def add_experience(request, user):
+    """ add an experience """
+    if request.method == "POST":
+        form = ExperienceForm(request.POST or None)
+        
+        if form.is_valid():
+            """ if the form is valid """
+            obj = form.save(commit=False)
+            obj.author=request.user
+            obj.save()
+            messages.success(request, "L'experience a été ajouté avec succés!")
+            return redirect(reverse('view_experiences'))
+            """ redirect to experiences list """
 
-    if form.is_valid():
-        obj=form.save(commit=False)
-        obj.author=request.user
-        obj.save()
+        else:
+            for field in form:
+                if field.errors:
+                    for error in field.errors:
+                        messages.error(request, error)
+            return redirect(reverse("view_experiences"))
+            """ redirect to experiences list """
+    else:
+        form = ExperienceForm()
+        #print(form)
+        data = {'form':form}
+        return render(request, 'add_experience.html', data)
+
+@login_required(login_url='/accounts/login')
+def edit_experience(request,id):
+    
+    try:
+        experience = Experience.objects.get(id=id)
+        """ get the skill with id = id """
+
+        if request.method == "POST":
+
+            form = ExperienceForm(request.POST or None,instance=experience)
+
+            if form.is_valid():
+                """ if the form is valid """
+
+                obj = form.save(commit=False)
+                # obj.logo = request.FILES["logo"]
+                obj.save()
+                messages.success(request, "Les données de l'experience ont été modifiées "
+                                          "avec succès!")
+                """ show success message """
+
+                return redirect(reverse('view_experiences'))
+                """ redirect to experiences list """
+            else:
+                """ if the form is invalid """
+
+                for field in form:
+                    if field.errors:
+                        for error in field.errors:
+                            messages.error(request, error)
+                            """ show error message """
+
+                return redirect(reverse("view_experiences"))
+                """ redirect to experiences list """
+        else:
+            form = ExperienceForm(instance=experience)
+            data = {'experience':experience,'form':form}
+            return render(request, 'edit_experience.html',data)
+
+    except Experience.DoesNotExist:
+        """ if the experience with id = id does not exist"""
+
+        messages.error(request, "L'experience n'existe pas")
+        """ show error message """
+
+        return redirect(reverse("view_experiences"))
+        """ redirect to experiences list """
+
+@login_required(login_url='/accounts/login')
+def delete_experience(request, id ):
+    """ delete experience where id = id"""
 
     try:
-        formations = Formation.objects.filter(author=request.user.id)
-        
-        if formations != None:
-            data = {'formations':formations,'form':form}
-            
-        else: 
-            data = {'formations':[{'title':'No formations'}],'form':form}
-            
-    except ValueError:
-         data = {'formations':[{'title':'No formations'}],'form':form}
-         print("Unexpected error:", sys.exc_info()[0])
-         
-    return render(request, 'formations.html', data)
+        experience = Experience.objects.get(id=id)
+        """ get the experience with id = id """
+        valid = False
+        if experience != None:
+            valid = True
+        #print(valid)
+        if valid:
+            """ if pressed button is Valider  """
+            try:
+                experience.delete()
+                """ delete the experience """
+                messages.success(request, "L'experience a été supprimé avec "
+                                          "succès.")
+                """ show success message """
+                return redirect(reverse('view_experiences'))
+                """ redirect to experiences list """
 
+            except Experience.DoesNotExist:
+                """
+                if the experience with id = id does not exist anymore
+                """
+
+                messages.error(request, "L'experience n'existe plus")
+                """ show error message """
+
+                return redirect(reverse('view_experiences'))
+                """ redirect to experiences list """
+
+            
+
+            except:
+                """
+                if there are other exception
+                """
+
+                messages.error(request, "Erreur lors de la suppression!")
+                """ show error message """
+
+                return redirect(reverse('view_experiences'))
+                """ redirect to experiences list """
+
+        data = {'experience':experience}
+        return render(request, 'delete_experience.html', data)
+
+    except Experience.DoesNotExist:
+        """
+        if the experience with id = id does not exist
+        """
+
+        messages.error(request, "L'experience n'existe pas")
+        """ show error message """
+
+        return redirect(reverse('view_experiences'))
+        """ redirect to experiences  list """   
 
 #
 #@login_required
+#def view_formations(request):
+#    form=FormationForm(request.POST or None)
+#
+#    if form.is_valid():
+#        obj=form.save(commit=False)
+#        obj.author=request.user
+#        obj.save()
+#
+#    try:
+#        formations = Formation.objects.filter(author=request.user.id)
+#        
+#        if formations != None:
+#            data = {'formations':formations,'form':form}
+#            
+#        else: 
+#            data = {'formations':[{'title':'No formations'}],'form':form}
+#            
+#    except ValueError:
+#         data = {'formations':[{'title':'No formations'}],'form':form}
+#         print("Unexpected error:", sys.exc_info()[0])
+#         
+#    return render(request, 'formations.html', data)
+#
+#
+##
+@login_required(login_url='/accounts/login')
+def view_formations(request):
+    """ formations of the actual user """
+    formations = Formation.objects.filter(author=request.user.id)
+    data = {'formations':formations,  'formations_active':"active"}
+    return render(request, 'formations.html', data)
+
+@login_required(login_url='/accounts/login')
+def add_formation(request, user):
+    """ add a formation """
+    if request.method == "POST":
+        form = FormationForm(request.POST or None)
+        
+        if form.is_valid():
+            """ if the form is valid """
+            obj = form.save(commit=False)
+            obj.author=request.user
+            obj.save()
+            messages.success(request, "La formation a été ajouté avec succés!")
+            return redirect(reverse('view_formations'))
+            """ redirect to formations list """
+
+        else:
+            for field in form:
+                if field.errors:
+                    for error in field.errors:
+                        messages.error(request, error)
+            return redirect(reverse("view_formations"))
+            """ redirect to formations list """
+    else:
+        form = FormationForm()
+        #print(form)
+        data = {'form':form}
+        return render(request, 'add_formation.html', data)
+
+@login_required(login_url='/accounts/login')
+def edit_formation(request,id):
+    
+    try:
+        formation = Formation.objects.get(id=id)
+        """ get the formation with id = id """
+
+        if request.method == "POST":
+
+            form = FormationForm(request.POST or None,instance=formation)
+
+            if form.is_valid():
+                """ if the form is valid """
+
+                obj = form.save(commit=False)
+                # obj.logo = request.FILES["logo"]
+                obj.save()
+                messages.success(request, "Les données de la formation ont été modifiées "
+                                          "avec succès!")
+                """ show success message """
+
+                return redirect(reverse('view_formations'))
+                """ redirect to formations list """
+            else:
+                """ if the form is invalid """
+
+                for field in form:
+                    if field.errors:
+                        for error in field.errors:
+                            messages.error(request, error)
+                            """ show error message """
+
+                return redirect(reverse("view_formations"))
+                """ redirect to formations list """
+        else:
+            form = FormationForm(instance=formation)
+            data = {'formation':formation,'form':form}
+            return render(request, 'edit_formation.html',data)
+
+    except Formation.DoesNotExist:
+        """ if the formation with id = id does not exist"""
+
+        messages.error(request, "La formation n'existe pas")
+        """ show error message """
+
+        return redirect(reverse("view_formations"))
+        """ redirect to formations list """
+
+@login_required(login_url='/accounts/login')
+def delete_formation(request, id ):
+    """ delete formation where id = id"""
+
+    try:
+        formation = Formation.objects.get(id=id)
+        """ get the formation with id = id """
+        valid = False
+        if formation != None:
+            valid = True
+        #print(valid)
+        if valid:
+            """ if pressed button is Valider  """
+            try:
+                formation.delete()
+                """ delete the formation """
+                messages.success(request, "La formation a été supprimé avec "
+                                          "succès.")
+                """ show success message """
+                return redirect(reverse('view_formations'))
+                """ redirect to formations list """
+
+            except Formation.DoesNotExist:
+                """
+                if the formation with id = id does not exist anymore
+                """
+
+                messages.error(request, "La formation n'existe plus")
+                """ show error message """
+
+                return redirect(reverse('view_formations'))
+                """ redirect to formations list """
+
+            
+
+            except:
+                """
+                if there are other exception
+                """
+
+                messages.error(request, "Erreur lors de la suppression!")
+                """ show error message """
+
+                return redirect(reverse('view_formations'))
+                """ redirect to formations list """
+
+        data = {'formation':formation}
+        return render(request, 'delete_formation.html', data)
+
+    except Formation.DoesNotExist:
+        """
+        if the formation with id = id does not exist
+        """
+
+        messages.error(request, "La formation n'existe pas")
+        """ show error message """
+
+        return redirect(reverse('view_formations'))
+        """ redirect to formations  list """   
+
+##@login_required
 #def view_skills(request):
 #    form=SkillForm(request.POST or None)
 #    
@@ -301,10 +588,10 @@ def add_skill(request, user):
         return render(request, 'add_skill.html', data)
 
 @login_required(login_url='/accounts/login')
-def edit_skill(request,id,):
+def edit_skill(request,id):
     
     try:
-        skill = Skill.objects.get(id=id2)
+        skill = Skill.objects.get(id=id)
         """ get the skill with id = id """
 
         if request.method == "POST":
@@ -335,7 +622,7 @@ def edit_skill(request,id,):
                 return redirect(reverse("view_skills"))
                 """ redirect to skills list """
         else:
-            form = SkillForm(instance=examination_room)
+            form = SkillForm(instance=skill)
             data = {'skill':skill,'form':form}
             return render(request, 'edit_skill.html',data)
 
