@@ -5,7 +5,7 @@ from django.contrib.auth import login
 from django.contrib import messages
 from .models import *
 from django.contrib.auth.models import User
-from .forms import SkillForm,ExperienceForm,LangueForm,HobbieForm,HobbieForm,FormationForm,CvForm
+from .forms import SkillForm,ExperienceForm,LanguageForm,HobbyForm,EducationForm,ResumeForm
 import sys
 from django import forms
 
@@ -120,31 +120,174 @@ def view_cvs(request):
          
     return render(request, 'cvs.html', data)
 
-@login_required
-def view_langues(request):
-    form=LangueForm(request.POST or None)
-
-    if form.is_valid():
-        obj=form.save(commit=False)
-        obj.author=request.user
-        obj.save()
-
-    try:
-        langues = Langue.objects.filter(author=request.user.id)
-        
-        if langues != None:
-            data = {'langues':langues,'form':form}
-            
-        else: 
-            data = {'langues':[{'title':'No langues'}],'form':form}
-            
-    except ValueError:
-         data = {'langues':[{'title':'No langues'}],'form':form}
-         print("Unexpected error:", sys.exc_info()[0])
-         
-         
+#@login_required
+#def view_langues(request):
+#    form=LangueForm(request.POST or None)
+#
+#    if form.is_valid():
+#        obj=form.save(commit=False)
+#        obj.author=request.user
+#        obj.save()
+#
+#    try:
+#        langues = Langue.objects.filter(author=request.user.id)
+#        
+#        if langues != None:
+#            data = {'langues':langues,'form':form}
+#            
+#        else: 
+#            data = {'langues':[{'title':'No langues'}],'form':form}
+#            
+#    except ValueError:
+#         data = {'langues':[{'title':'No langues'}],'form':form}
+#         print("Unexpected error:", sys.exc_info()[0])
+#         
+#         
+#    return render(request, 'langues.html', data)
+#
+#
+@login_required(login_url='/accounts/login')
+def view_languages(request):
+    """ langues of the actual user """
+    languages = Langue.objects.filter(author=request.user.id)
+    data = {'languages':languages,  'languages_active':"active"}
     return render(request, 'langues.html', data)
 
+@login_required(login_url='/accounts/login')
+def add_language(request, user):
+    """ add a language """
+    if request.method == "POST":
+        form = LangueForm(request.POST or None)
+        
+        if form.is_valid():
+            """ if the form is valid """
+            obj = form.save(commit=False)
+            obj.author=request.user
+            obj.save()
+            messages.success(request, "La langue a été ajouté avec succés!")
+            return redirect(reverse('view_languages'))
+            """ redirect to languages list """
+
+        else:
+            for field in form:
+                if field.errors:
+                    for error in field.errors:
+                        messages.error(request, error)
+            return redirect(reverse("view_langues"))
+            """ redirect to languages list """
+    else:
+        form = LangueForm()
+        #print(form)
+        data = {'form':form}
+        return render(request, 'add_language.html', data)
+
+@login_required(login_url='/accounts/login')
+def edit_language(request,id,):
+    
+    try:
+        language = Langue.objects.get(id=id2)
+        """ get the language with id = id """
+
+        if request.method == "POST":
+
+            form = LangueForm(request.POST or None,instance=language)
+
+            if form.is_valid():
+                """ if the form is valid """
+
+                obj = form.save(commit=False)
+                # obj.logo = request.FILES["logo"]
+                obj.save()
+                messages.success(request, "Les données de la langue ont été modifiées "
+                                          "avec succès!")
+                """ show success message """
+
+                return redirect(reverse('view_langues'))
+                """ redirect to languages list """
+            else:
+                """ if the form is invalid """
+
+                for field in form:
+                    if field.errors:
+                        for error in field.errors:
+                            messages.error(request, error)
+                            """ show error message """
+
+                return redirect(reverse("view_langues"))
+                """ redirect to languages list """
+        else:
+            form = LangueForm(instance=languages)
+            data = {'language':language,'form':form}
+            return render(request, 'edit_language.html',data)
+
+    except Langue.DoesNotExist:
+        """ if the doctor with id = id does not exist"""
+
+        messages.error(request, "La langue n'existe pas")
+        """ show error message """
+
+        return redirect(reverse("view_langues"))
+        """ redirect to langues list """
+
+@login_required(login_url='/accounts/login')
+def delete_language(request, id ):
+    """ delete language where id = id"""
+
+    try:
+        langue = Langue.objects.get(id=id)
+        """ get the language with id = id """
+        valid = False
+        if language != None:
+            valid = True
+        #print(valid)
+        if valid:
+            """ if pressed button is Valider  """
+            try:
+                language.delete()
+                """ delete the language """
+                messages.success(request, "La langue a été supprimé avec "
+                                          "succès.")
+                """ show success message """
+                return redirect(reverse('view_languages'))
+                """ redirect to languages list """
+
+            except Langue.DoesNotExist:
+                """
+                if the language with id = id does not exist anymore
+                """
+
+                messages.error(request, "La langue n'existe plus")
+                """ show error message """
+
+                return redirect(reverse('view_langues'))
+                """ redirect to languages list """
+
+            
+
+            except:
+                """
+                if there are other exception
+                """
+
+                messages.error(request, "Erreur lors de la suppression!")
+                """ show error message """
+
+                return redirect(reverse('view_langues'))
+                """ redirect to languages list """
+
+        data = {'language':language}
+        return render(request, 'delete_language.html', data)
+
+    except Langue.DoesNotExist:
+        """
+        if the language with id = id does not exist
+        """
+
+        messages.error(request, "La langue n'existe pas")
+        """ show error message """
+
+        return redirect(reverse('view_languages'))
+        """ redirect to languages  list """   
 
 @login_required
 def view_profile(request):
@@ -163,34 +306,177 @@ def view_single_cv(request,cv_id):
         data={'cv':cv}
          
     return render(request, 'single_cv.html', data)
-
-@login_required
+#
+#@login_required
+#def view_hobbies(request):
+#    form=HobbieForm(request.POST or None)
+#
+#    if form.is_valid():
+#        obj=form.save(commit=False)
+#        obj.author=request.user
+#        obj.save()
+#
+#    try:
+#        hobbies = Hobbie.objects.filter(author=request.user.id)
+#        
+#        if hobbies != None:
+#            data = {'hobbies':hobbies,'form':form}
+#            
+#        else: 
+#            data = {'hobbies':[{'title':'No hobbies'}],'form':form}
+#            
+#    except ValueError:
+#         data = {'hobbies':[{'title':'No hobbies'}],'form':form}
+#         print("Unexpected error:", sys.exc_info()[0])
+#         
+#         
+#    return render(request, 'hobbies.html', data)
+#
+@login_required(login_url='/accounts/login')
 def view_hobbies(request):
-    form=HobbieForm(request.POST or None)
-
-    if form.is_valid():
-        obj=form.save(commit=False)
-        obj.author=request.user
-        obj.save()
-
-    try:
-        hobbies = Hobbie.objects.filter(author=request.user.id)
-        
-        if hobbies != None:
-            data = {'hobbies':hobbies,'form':form}
-            
-        else: 
-            data = {'hobbies':[{'title':'No hobbies'}],'form':form}
-            
-    except ValueError:
-         data = {'hobbies':[{'title':'No hobbies'}],'form':form}
-         print("Unexpected error:", sys.exc_info()[0])
-         
-         
+    """ hobbies of the actual user """
+    hobbies = Hobbie.objects.filter(author=request.user.id)
+    data = {'hobbies':hobbies,  'hobbies_active':"active"}
     return render(request, 'hobbies.html', data)
 
-#@login_required
-#def view_experiences(request):
+@login_required(login_url='/accounts/login')
+def add_hobby(request, user):
+    """ add a hobby """
+    if request.method == "POST":
+        form = HobbieForm(request.POST or None)
+        
+        if form.is_valid():
+            """ if the form is valid """
+            obj = form.save(commit=False)
+            obj.author=request.user
+            obj.save()
+            messages.success(request, "Le hobbie a été ajouté avec succés!")
+            return redirect(reverse('view_hobbies'))
+            """ redirect to hobbies list """
+
+        else:
+            for field in form:
+                if field.errors:
+                    for error in field.errors:
+                        messages.error(request, error)
+            return redirect(reverse("view_hobbies"))
+            """ redirect to hobbies list """
+    else:
+        form = HobbieForm()
+        #print(form)
+        data = {'form':form}
+        return render(request, 'add_hobby.html', data)
+
+@login_required(login_url='/accounts/login')
+def edit_hobby(request,id):
+    
+    try:
+        hobby = Hobbie.objects.get(id=id)
+        """ get the hobby with id = id """
+
+        if request.method == "POST":
+
+            form = HobbieForm(request.POST or None,instance=hobby)
+
+            if form.is_valid():
+                """ if the form is valid """
+
+                obj = form.save(commit=False)
+                # obj.logo = request.FILES["logo"]
+                obj.save()
+                messages.success(request, "Les données du hobbie ont été modifiées "
+                                          "avec succès!")
+                """ show success message """
+
+                return redirect(reverse('view_hobbies'))
+                """ redirect to hobbies list """
+            else:
+                """ if the form is invalid """
+
+                for field in form:
+                    if field.errors:
+                        for error in field.errors:
+                            messages.error(request, error)
+                            """ show error message """
+
+                return redirect(reverse("view_hobbies"))
+                """ redirect to hobbies list """
+        else:
+            form = HobbieForm(instance=hobby)
+            data = {'hobby':hobby,'form':form}
+            return render(request, 'edit_hobby.html',data)
+
+    except Hobbie.DoesNotExist:
+        """ if the hobby with id = id does not exist"""
+
+        messages.error(request, "Le hobbie n'existe pas")
+        """ show error message """
+
+        return redirect(reverse("view_hobbies"))
+        """ redirect to hobbies list """
+
+@login_required(login_url='/accounts/login')
+def delete_hobby(request, id ):
+    """ delete hobby where id = id"""
+
+    try:
+        hobby = Hobbie.objects.get(id=id)
+        """ get the hobby with id = id """
+        valid = False
+        if hobby != None:
+            valid = True
+        #print(valid)
+        if valid:
+            """ if pressed button is Valider  """
+            try:
+                hobby.delete()
+                """ delete the hobby """
+                messages.success(request, "Le hobbie a été supprimé avec "
+                                          "succès.")
+                """ show success message """
+                return redirect(reverse('view_hobbies'))
+                """ redirect to hobbies list """
+
+            except Hobbie.DoesNotExist:
+                """
+                if the hobby with id = id does not exist anymore
+                """
+
+                messages.error(request, "Le hobbie n'existe plus")
+                """ show error message """
+
+                return redirect(reverse('view_hobbies'))
+                """ redirect to hobbies list """
+
+            
+
+            except:
+                """
+                if there are other exception
+                """
+
+                messages.error(request, "Erreur lors de la suppression!")
+                """ show error message """
+
+                return redirect(reverse('view_hobbies'))
+                """ redirect to hobbies list """
+
+        data = {'hobby':hobby}
+        return render(request, 'delete_hobby.html', data)
+
+    except Hobbie.DoesNotExist:
+        """
+        if the hobby with id = id does not exist
+        """
+
+        messages.error(request, "Le hobbie n'existe pas")
+        """ show error message """
+
+        return redirect(reverse('view_hobbies'))
+        """ redirect to hobbies list """   
+
+##@login_required
+##def view_experiences(request):
 #    form=ExperienceForm(request.POST or None)
 #
 #    if form.is_valid():

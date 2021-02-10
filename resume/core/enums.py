@@ -11,7 +11,7 @@ sexChoices = (
     (2,'Femme')
 )
 
-type_formation_choices = (
+type_education_choices = (
     (1,"licence"),
     (2,"master" ),
     (0,"bac"),
