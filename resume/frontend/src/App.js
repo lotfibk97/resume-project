@@ -1,10 +1,12 @@
 import logo from './logo.svg';
 import './App.css';
+import MyAppBar from './components/MyAppBar';
 
 function App() {
   return (
     <div className="App">
-      <h1> Resume Generator </h1>
+    <MyAppBar />
+      <h1> Home </h1>
 
 
     </div>
