@@ -41,30 +41,30 @@ class ExperienceForm(forms.ModelForm):
 
     class Meta:
         model = Experience
-        fields = ['title','begin_date','end_date','etablissement','lieu','description']
+        fields = ['title','begin_date','end_date','facility','place','description']
 
     def __init__(self, *args, **kwargs):
         super(ExperienceForm, self).__init__(*args, **kwargs)
         self.fields['begin_date'].widget = forms.DateInput(attrs={'type': 'date'})
         self.fields['end_date'].widget = forms.DateInput(attrs={'type': 'date'})
 
-class FormationForm(forms.ModelForm):
+class EducationForm(forms.ModelForm):
 
 
     class Meta:
-        model = Formation
-        fields = ['title','begin_date','end_date','etablissement','lieu','description']
+        model = Education
+        fields = ['title','begin_date','end_date','facility','place','description']
 
     def __init__(self, *args, **kwargs):
-        super(FormationForm, self).__init__(*args, **kwargs)
+        super(EducationForm, self).__init__(*args, **kwargs)
         self.fields['begin_date'].widget = forms.DateInput(attrs={'type': 'date'})
         self.fields['end_date'].widget = forms.DateInput(attrs={'type': 'date'})
 
 
-class LangueForm(forms.ModelForm):
+class LanguageForm(forms.ModelForm):
 
     class Meta:
-        model = Langue
+        model = Language
         fields = ['title','note_parler','note_ecrit']
         labels = {
             "title": "Langue",
@@ -73,20 +73,20 @@ class LangueForm(forms.ModelForm):
         }
 
 
-class HobbieForm(forms.ModelForm):
+class HobbyForm(forms.ModelForm):
 
     class Meta:
-        model = Hobbie
+        model = Hobby
         fields = ['title']
         labels = {
             "title": "Nom de l'activité",
         }
 
 
-class CvForm(forms.ModelForm):
+class ResumeForm(forms.ModelForm):
 
     skills = forms.ModelMultipleChoiceField(queryset=Skill.objects.all(), widget=forms.CheckboxSelectMultiple)
     class Meta:
-        model = Cv
-        fields = ['title','skills','formations','experiences','langues','hobbies']
+        model = Resume
+        fields = ['title','skills','educations','experiences','languages','hobbies']
         
