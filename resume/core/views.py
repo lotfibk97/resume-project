@@ -19,8 +19,8 @@ import pdfkit
 from django.template import loader
 
 def create_pdf(request,cv_id):
-    cv = get_object_or_404(Cv, pk=cv_id,author=request.user.id)
-    context = {'user': request.user,'cv':cv}
+    Resume = get_object_or_404(Resume, pk=cv_id,author=request.user.id)
+    context = {'user': request.user,'Resume':Resume}
     html = loader.render_to_string('cv_tttt.html', context)
     output= pdfkit.from_string(html, output_path=False)
     response = HttpResponse(content_type="application/pdf")
@@ -29,16 +29,16 @@ def create_pdf(request,cv_id):
 
 
 def render_pdf(request, cv_id, download='0'):
-    cv = get_object_or_404(Cv, pk=cv_id,author=request.user.id)
+    Resume = get_object_or_404(Resume, pk=cv_id,author=request.user.id)
     template_path = 'cv_test.html'
-    context = {'user': request.user,'cv':cv}
+    context = {'user': request.user,'Resume':Resume}
     # Create a Django response object, and specify content_type as pdf
     response = HttpResponse(content_type='application/pdf')
 
     if download=='1':
-        response['Content-Disposition'] = 'attachment; filename="cv.pdf"'
+        response['Content-Disposition'] = 'attachment; filename="Resume.pdf"'
     else:
-        response['Content-Disposition'] = 'filename="cv.pdf"'
+        response['Content-Disposition'] = 'filename="Resume.pdf"'
 
     # find the template and render it.
     template = get_template(template_path)
@@ -90,13 +90,13 @@ def signup(request):
 
 @login_required
 def view_cvs(request):
-    form=CvForm(request.POST or None)
+    form=ResumeForm(request.POST or None)
 
     form.fields['skills']=forms.ModelMultipleChoiceField(queryset=Skill.objects.filter(author=request.user.id), widget=forms.CheckboxSelectMultiple)
-    form.fields['langues']=forms.ModelMultipleChoiceField(queryset=Langue.objects.filter(author=request.user.id), widget=forms.CheckboxSelectMultiple)
+    form.fields['languages']=forms.ModelMultipleChoiceField(queryset=Language.objects.filter(author=request.user.id), widget=forms.CheckboxSelectMultiple)
     form.fields['experiences']=forms.ModelMultipleChoiceField(queryset=Experience.objects.filter(author=request.user.id), widget=forms.CheckboxSelectMultiple)
-    form.fields['formations']=forms.ModelMultipleChoiceField(queryset=Formation.objects.filter(author=request.user.id), widget=forms.CheckboxSelectMultiple)
-    form.fields['hobbies']=forms.ModelMultipleChoiceField(queryset=Hobbie.objects.filter(author=request.user.id), widget=forms.CheckboxSelectMultiple)
+    form.fields['formations']=forms.ModelMultipleChoiceField(queryset=Education.objects.filter(author=request.user.id), widget=forms.CheckboxSelectMultiple)
+    form.fields['hobbies']=forms.ModelMultipleChoiceField(queryset=Hobby.objects.filter(author=request.user.id), widget=forms.CheckboxSelectMultiple)
     
     if form.is_valid():
         obj=form.save(commit=False)
@@ -105,7 +105,7 @@ def view_cvs(request):
         form.save_m2m()
 
     try:
-        cvs = Cv.objects.filter(author=request.user.id)
+        cvs = Resume.objects.filter(author=request.user.id)
 
         if cvs != None:
             data = {'cvs':cvs,'form':form}
@@ -130,7 +130,7 @@ def view_cvs(request):
 #        obj.save()
 #
 #    try:
-#        langues = Langue.objects.filter(author=request.user.id)
+#        langues = Language.objects.filter(author=request.user.id)
 #        
 #        if langues != None:
 #            data = {'langues':langues,'form':form}
@@ -149,7 +149,7 @@ def view_cvs(request):
 @login_required(login_url='/accounts/login')
 def view_languages(request):
     """ langues of the actual user """
-    languages = Langue.objects.filter(author=request.user.id)
+    languages = Language.objects.filter(author=request.user.id)
     data = {'languages':languages,  'languages_active':"active"}
     return render(request, 'langues.html', data)
 
@@ -164,7 +164,7 @@ def add_language(request, user):
             obj = form.save(commit=False)
             obj.author=request.user
             obj.save()
-            messages.success(request, "La langue a été ajouté avec succés!")
+            messages.success(request, "La Language a été ajouté avec succés!")
             return redirect(reverse('view_languages'))
             """ redirect to languages list """
 
@@ -185,7 +185,7 @@ def add_language(request, user):
 def edit_language(request,id,):
     
     try:
-        language = Langue.objects.get(id=id2)
+        language = Language.objects.get(id=id2)
         """ get the language with id = id """
 
         if request.method == "POST":
@@ -198,7 +198,7 @@ def edit_language(request,id,):
                 obj = form.save(commit=False)
                 # obj.logo = request.FILES["logo"]
                 obj.save()
-                messages.success(request, "Les données de la langue ont été modifiées "
+                messages.success(request, "Les données de la Language ont été modifiées "
                                           "avec succès!")
                 """ show success message """
 
@@ -220,10 +220,10 @@ def edit_language(request,id,):
             data = {'language':language,'form':form}
             return render(request, 'edit_language.html',data)
 
-    except Langue.DoesNotExist:
+    except Language.DoesNotExist:
         """ if the doctor with id = id does not exist"""
 
-        messages.error(request, "La langue n'existe pas")
+        messages.error(request, "La Language n'existe pas")
         """ show error message """
 
         return redirect(reverse("view_langues"))
@@ -234,7 +234,7 @@ def delete_language(request, id ):
     """ delete language where id = id"""
 
     try:
-        langue = Langue.objects.get(id=id)
+        Language = Language.objects.get(id=id)
         """ get the language with id = id """
         valid = False
         if language != None:
@@ -245,18 +245,18 @@ def delete_language(request, id ):
             try:
                 language.delete()
                 """ delete the language """
-                messages.success(request, "La langue a été supprimé avec "
+                messages.success(request, "La Language a été supprimé avec "
                                           "succès.")
                 """ show success message """
                 return redirect(reverse('view_languages'))
                 """ redirect to languages list """
 
-            except Langue.DoesNotExist:
+            except Language.DoesNotExist:
                 """
                 if the language with id = id does not exist anymore
                 """
 
-                messages.error(request, "La langue n'existe plus")
+                messages.error(request, "La Language n'existe plus")
                 """ show error message """
 
                 return redirect(reverse('view_langues'))
@@ -278,12 +278,12 @@ def delete_language(request, id ):
         data = {'language':language}
         return render(request, 'delete_language.html', data)
 
-    except Langue.DoesNotExist:
+    except Language.DoesNotExist:
         """
         if the language with id = id does not exist
         """
 
-        messages.error(request, "La langue n'existe pas")
+        messages.error(request, "La Language n'existe pas")
         """ show error message """
 
         return redirect(reverse('view_languages'))
@@ -299,11 +299,11 @@ def view_profile(request):
 @login_required
 def view_single_cv(request,cv_id):
 
-    cv = get_object_or_404(Cv, pk=cv_id,author=request.user.id)
+    Resume = get_object_or_404(Resume, pk=cv_id,author=request.user.id)
 
     data={}
-    if cv != None:
-        data={'cv':cv}
+    if Resume != None:
+        data={'Resume':Resume}
          
     return render(request, 'single_cv.html', data)
 #
@@ -317,7 +317,7 @@ def view_single_cv(request,cv_id):
 #        obj.save()
 #
 #    try:
-#        hobbies = Hobbie.objects.filter(author=request.user.id)
+#        hobbies = Hobby.objects.filter(author=request.user.id)
 #        
 #        if hobbies != None:
 #            data = {'hobbies':hobbies,'form':form}
@@ -335,7 +335,7 @@ def view_single_cv(request,cv_id):
 @login_required(login_url='/accounts/login')
 def view_hobbies(request):
     """ hobbies of the actual user """
-    hobbies = Hobbie.objects.filter(author=request.user.id)
+    hobbies = Hobby.objects.filter(author=request.user.id)
     data = {'hobbies':hobbies,  'hobbies_active':"active"}
     return render(request, 'hobbies.html', data)
 
@@ -350,7 +350,7 @@ def add_hobby(request, user):
             obj = form.save(commit=False)
             obj.author=request.user
             obj.save()
-            messages.success(request, "Le hobbie a été ajouté avec succés!")
+            messages.success(request, "Le Hobby a été ajouté avec succés!")
             return redirect(reverse('view_hobbies'))
             """ redirect to hobbies list """
 
@@ -371,7 +371,7 @@ def add_hobby(request, user):
 def edit_hobby(request,id):
     
     try:
-        hobby = Hobbie.objects.get(id=id)
+        hobby = Hobby.objects.get(id=id)
         """ get the hobby with id = id """
 
         if request.method == "POST":
@@ -384,7 +384,7 @@ def edit_hobby(request,id):
                 obj = form.save(commit=False)
                 # obj.logo = request.FILES["logo"]
                 obj.save()
-                messages.success(request, "Les données du hobbie ont été modifiées "
+                messages.success(request, "Les données du Hobby ont été modifiées "
                                           "avec succès!")
                 """ show success message """
 
@@ -406,10 +406,10 @@ def edit_hobby(request,id):
             data = {'hobby':hobby,'form':form}
             return render(request, 'edit_hobby.html',data)
 
-    except Hobbie.DoesNotExist:
+    except Hobby.DoesNotExist:
         """ if the hobby with id = id does not exist"""
 
-        messages.error(request, "Le hobbie n'existe pas")
+        messages.error(request, "Le Hobby n'existe pas")
         """ show error message """
 
         return redirect(reverse("view_hobbies"))
@@ -420,7 +420,7 @@ def delete_hobby(request, id ):
     """ delete hobby where id = id"""
 
     try:
-        hobby = Hobbie.objects.get(id=id)
+        hobby = Hobby.objects.get(id=id)
         """ get the hobby with id = id """
         valid = False
         if hobby != None:
@@ -431,18 +431,18 @@ def delete_hobby(request, id ):
             try:
                 hobby.delete()
                 """ delete the hobby """
-                messages.success(request, "Le hobbie a été supprimé avec "
+                messages.success(request, "Le Hobby a été supprimé avec "
                                           "succès.")
                 """ show success message """
                 return redirect(reverse('view_hobbies'))
                 """ redirect to hobbies list """
 
-            except Hobbie.DoesNotExist:
+            except Hobby.DoesNotExist:
                 """
                 if the hobby with id = id does not exist anymore
                 """
 
-                messages.error(request, "Le hobbie n'existe plus")
+                messages.error(request, "Le Hobby n'existe plus")
                 """ show error message """
 
                 return redirect(reverse('view_hobbies'))
@@ -464,12 +464,12 @@ def delete_hobby(request, id ):
         data = {'hobby':hobby}
         return render(request, 'delete_hobby.html', data)
 
-    except Hobbie.DoesNotExist:
+    except Hobby.DoesNotExist:
         """
         if the hobby with id = id does not exist
         """
 
-        messages.error(request, "Le hobbie n'existe pas")
+        messages.error(request, "Le Hobby n'existe pas")
         """ show error message """
 
         return redirect(reverse('view_hobbies'))
@@ -653,7 +653,7 @@ def delete_experience(request, id ):
 #        obj.save()
 #
 #    try:
-#        formations = Formation.objects.filter(author=request.user.id)
+#        formations = Education.objects.filter(author=request.user.id)
 #        
 #        if formations != None:
 #            data = {'formations':formations,'form':form}
@@ -672,13 +672,13 @@ def delete_experience(request, id ):
 @login_required(login_url='/accounts/login')
 def view_formations(request):
     """ formations of the actual user """
-    formations = Formation.objects.filter(author=request.user.id)
+    formations = Education.objects.filter(author=request.user.id)
     data = {'formations':formations,  'formations_active':"active"}
     return render(request, 'formations.html', data)
 
 @login_required(login_url='/accounts/login')
 def add_formation(request, user):
-    """ add a formation """
+    """ add a Education """
     if request.method == "POST":
         form = FormationForm(request.POST or None)
         
@@ -687,7 +687,7 @@ def add_formation(request, user):
             obj = form.save(commit=False)
             obj.author=request.user
             obj.save()
-            messages.success(request, "La formation a été ajouté avec succés!")
+            messages.success(request, "La Education a été ajouté avec succés!")
             return redirect(reverse('view_formations'))
             """ redirect to formations list """
 
@@ -708,12 +708,12 @@ def add_formation(request, user):
 def edit_formation(request,id):
     
     try:
-        formation = Formation.objects.get(id=id)
-        """ get the formation with id = id """
+        Education = Education.objects.get(id=id)
+        """ get the Education with id = id """
 
         if request.method == "POST":
 
-            form = FormationForm(request.POST or None,instance=formation)
+            form = FormationForm(request.POST or None,instance=Education)
 
             if form.is_valid():
                 """ if the form is valid """
@@ -721,7 +721,7 @@ def edit_formation(request,id):
                 obj = form.save(commit=False)
                 # obj.logo = request.FILES["logo"]
                 obj.save()
-                messages.success(request, "Les données de la formation ont été modifiées "
+                messages.success(request, "Les données de la Education ont été modifiées "
                                           "avec succès!")
                 """ show success message """
 
@@ -739,14 +739,14 @@ def edit_formation(request,id):
                 return redirect(reverse("view_formations"))
                 """ redirect to formations list """
         else:
-            form = FormationForm(instance=formation)
-            data = {'formation':formation,'form':form}
+            form = FormationForm(instance=Education)
+            data = {'Education':Education,'form':form}
             return render(request, 'edit_formation.html',data)
 
-    except Formation.DoesNotExist:
-        """ if the formation with id = id does not exist"""
+    except Education.DoesNotExist:
+        """ if the Education with id = id does not exist"""
 
-        messages.error(request, "La formation n'existe pas")
+        messages.error(request, "La Education n'existe pas")
         """ show error message """
 
         return redirect(reverse("view_formations"))
@@ -754,32 +754,32 @@ def edit_formation(request,id):
 
 @login_required(login_url='/accounts/login')
 def delete_formation(request, id ):
-    """ delete formation where id = id"""
+    """ delete Education where id = id"""
 
     try:
-        formation = Formation.objects.get(id=id)
-        """ get the formation with id = id """
+        Education = Education.objects.get(id=id)
+        """ get the Education with id = id """
         valid = False
-        if formation != None:
+        if Education != None:
             valid = True
         #print(valid)
         if valid:
             """ if pressed button is Valider  """
             try:
-                formation.delete()
-                """ delete the formation """
-                messages.success(request, "La formation a été supprimé avec "
+                Education.delete()
+                """ delete the Education """
+                messages.success(request, "La Education a été supprimé avec "
                                           "succès.")
                 """ show success message """
                 return redirect(reverse('view_formations'))
                 """ redirect to formations list """
 
-            except Formation.DoesNotExist:
+            except Education.DoesNotExist:
                 """
-                if the formation with id = id does not exist anymore
+                if the Education with id = id does not exist anymore
                 """
 
-                messages.error(request, "La formation n'existe plus")
+                messages.error(request, "La Education n'existe plus")
                 """ show error message """
 
                 return redirect(reverse('view_formations'))
@@ -798,15 +798,15 @@ def delete_formation(request, id ):
                 return redirect(reverse('view_formations'))
                 """ redirect to formations list """
 
-        data = {'formation':formation}
+        data = {'Education':Education}
         return render(request, 'delete_formation.html', data)
 
-    except Formation.DoesNotExist:
+    except Education.DoesNotExist:
         """
-        if the formation with id = id does not exist
+        if the Education with id = id does not exist
         """
 
-        messages.error(request, "La formation n'existe pas")
+        messages.error(request, "La Education n'existe pas")
         """ show error message """
 
         return redirect(reverse('view_formations'))
@@ -983,10 +983,10 @@ def delete_skill(request, id ):
 
 @login_required
 def delete_cv(request,cv_id):
-    cv = get_object_or_404(Cv, pk=cv_id)  # Get your current cat
+    Resume = get_object_or_404(Resume, pk=cv_id)  # Get your current cat
 
     if request.method == 'POST':         # If method is POST,
-        cv.delete()                     # delete the cat.
+        Resume.delete()                     # delete the cat.
         return redirect('/cvs')             # Finally, redirect to the homepage.
 
     return redirect('/cvs')
@@ -1004,20 +1004,20 @@ def delete_experience(request,experience_id):
 
 @login_required
 def delete_formation(request,formation_id):
-    formation = get_object_or_404(Formation, pk=formation_id)  # Get your current cat
+    Education = get_object_or_404(Education, pk=formation_id)  # Get your current cat
 
     if request.method == 'POST':         # If method is POST,
-        formation.delete()                     # delete the cat.
+        Education.delete()                     # delete the cat.
         return redirect('/formations')             # Finally, redirect to the homepage.
 
     return redirect('/formations')
 
 @login_required
 def delete_hobbie(request,hobbie_id):
-    hobbie = get_object_or_404(Hobbie, pk=hobbie_id)  # Get your current cat
+    Hobby = get_object_or_404(Hobby, pk=hobbie_id)  # Get your current cat
 
     if request.method == 'POST':         # If method is POST,
-        hobbie.delete()                     # delete the cat.
+        Hobby.delete()                     # delete the cat.
         return redirect('/hobbies')             # Finally, redirect to the homepage.
 
     return redirect('/hobbies')
@@ -1034,10 +1034,10 @@ def delete_skill(request,skill_id):
 
 @login_required
 def delete_langue(request,langue_id):
-    langue = get_object_or_404(Langue, pk=langue_id)  # Get your current cat
+    Language = get_object_or_404(Language, pk=langue_id)  # Get your current cat
 
     if request.method == 'POST':         # If method is POST,
-        langue.delete()                     # delete the cat.
+        Language.delete()                     # delete the cat.
         return redirect('/langues')             # Finally, redirect to the homepage.
 
     return redirect('/langues')
