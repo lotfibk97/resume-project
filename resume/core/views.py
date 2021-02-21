@@ -502,7 +502,7 @@ def delete_hobby(request, id ):
 @login_required(login_url='/accounts/login')
 def view_experiences(request):
     """ experiences of the actual user """
-    experieces = Experience.objects.filter(author=request.user.id)
+    experiences = Experience.objects.filter(author=request.user.id)
     data = {'experiences':experiences,  'experiences_active':"active"}
     return render(request, 'experiences.html', data)
 

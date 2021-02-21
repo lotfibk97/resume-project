@@ -90,3 +90,4 @@ class ResumeForm(forms.ModelForm):
         model = Resume
         fields = ['title','skills','educations','experiences','languages','hobbies']
         
+        

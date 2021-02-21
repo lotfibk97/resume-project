@@ -1,0 +1,128 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="container">
+  <div class="columns is-mobile is-centered">
+    <div class="column is-8">
+      <div class="block has-text-centered m-5">
+        <h1 class="title m-3">Mes Cvs</h1>
+        <div class="box">
+          <form id="form_skill_id" action="{% url 'add_skill' %}" method="post">
+            {% csrf_token %} 
+            <div class="">
+              {{formSkill.title}}
+            </div>
+            <div>
+            {{formSkill.note}}
+            </div>
+            <button id="button_skill_id" type="submit">Ajouter</button>
+          </form>
+          <form id="form_experience_id" action="{% url 'add_experience' %}" method="post">
+            {% csrf_token %} 
+            <div class="">
+            {{formExperience.title}}
+            </div>
+            <div>
+            {{formExperience.begin_date}}
+            </div>
+            <div>
+            {{formExperience.end_date}}
+            </div>
+            <div>
+            {{formExperience.facility}}
+            </div>
+            <div>
+            {{formExperience.place}}
+            </div>
+            <div>
+            {{formExperience.description}}
+            </div>
+            <button id="button_experience_id" type="submit">Ajouter</button>
+          </form>
+          <form id="form_education_id" action="{% url 'add_education' %}" method="post">
+            {% csrf_token %} 
+            <div class="">
+            {{formEducation.title}}
+            </div>
+            <div>
+            {{formEducation.begin_date}}
+            </div>
+            <div>
+            {{formEducation.end_date}}
+            </div>
+            <div>
+            {{formEducation.facility}}
+            </div>
+            <div>
+            {{formEducation.place}}
+            </div>
+            <div>
+            {{formEducation.description}}
+            </div>
+            <div>
+            {{formEducation.type}}
+            </div>
+            <button id="button_education_id" type="submit">Ajouter</button>
+          </form>
+          <form id="form_hobby_id" action="{% url 'add_hobbie' %}" method="post">
+            {% csrf_token %} 
+              <div>
+              {{formHobby.title}}
+              </div>
+            <button id="button_hobby_id" type="submit">Ajouter</button>
+          </form>
+          <form id="form_language_id" action="{% url 'add_language' %}" method="post">
+            {% csrf_token %}
+              <div> 
+              {{formLanguage.title}}
+              </div>
+              <div>
+              {{formLanguage.note_parler}}
+              </div>
+              <div>
+              {{formLanguage.note_ecrit}}
+              </div>
+            <button id="button_language_id" type="submit">Ajouter</button>
+          </form>
+          <form action="{% url 'add_resume' %}" id="form_resume_id" method="post">
+            {% csrf_token %} 
+              
+            <button id="button_resume_id" type="submit">Ajouter</button>
+          </form>
+          <form action="" method="post">
+            {% csrf_token %} 
+              
+            <button type="submit">Ajouter</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="columns is-multiline is-mobile">
+    <div class="column is-quarter">
+      {% for cv in cvs %}
+
+        <p>{{ cv.title }}</p>
+        <form action="{% url 'view_single_cv' cv.id %}" method='GET'>
+<button type='submit'> Voir</button>
+</form>
+        {% for skill in cv.skills.all %}
+
+        <p>{{ skill.title }}</p>
+        {% endfor %}
+        <form action="{% url 'delete_cv' cv.id %}" method="post">
+          {% csrf_token %}
+          <button type="submit">supprimer</button>
+        </form>
+
+      {% endfor %}
+    </div>
+  </div>
+
+  
+</div>
+{% endblock %}
+{% block js %}
+{% endblock %}
