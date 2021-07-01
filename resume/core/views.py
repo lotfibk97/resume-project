@@ -9,13 +9,21 @@ from .forms import SkillForm,ExperienceForm,LanguageForm,HobbyForm,EducationForm
 import sys
 from django import forms
 
+from .models import *
+from .serializers import *
+from rest_framework import viewsets, filters, generics, permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser
+
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.loader import get_template
-from xhtml2pdf import pisa
+#from xhtml2pdf import pisa
 
 
-import pdfkit
+#import pdfkit
 from django.template import loader
 
 def create_pdf(request,cv_id):
@@ -120,38 +128,21 @@ def view_cvs(request):
          
     return render(request, 'cvs.html', data)
 
-#@login_required
-#def view_langues(request):
-#    form=LangueForm(request.POST or None)
-#
-#    if form.is_valid():
-#        obj=form.save(commit=False)
-#        obj.author=request.user
-#        obj.save()
-#
-#    try:
-#        langues = Language.objects.filter(author=request.user.id)
-#        
-#        if langues != None:
-#            data = {'langues':langues,'form':form}
-#            
-#        else: 
-#            data = {'langues':[{'title':'No langues'}],'form':form}
-#            
-#    except ValueError:
-#         data = {'langues':[{'title':'No langues'}],'form':form}
-#         print("Unexpected error:", sys.exc_info()[0])
-#         
-#         
-#    return render(request, 'langues.html', data)
-#
-#
 @login_required(login_url='/accounts/login')
 def view_languages(request):
     """ langues of the actual user """
     languages = Language.objects.filter(author=request.user.id)
     data = {'languages':languages,  'languages_active':"active"}
     return render(request, 'langues.html', data)
+
+#@login_required(login_url='/accounts/login')
+class LanguageDetail(generics.RetrieveAPIView):
+
+    serializer_class = LanguageSerializer
+
+    def get_object(self, queryset=None, **kwargs):
+        item = self.kwargs.get('language_id')
+        return get_object_or_404(Language, id=item)
 
 @login_required(login_url='/accounts/login')
 def add_language(request, user):
@@ -180,6 +171,13 @@ def add_language(request, user):
         #print(form)
         data = {'form':form}
         return render(request, 'add_language.html', data)
+
+#@login_required(login_url='/accounts/login')
+class CreateLanguage(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Language.objects.all()
+    serializer_class = LanguageSerializer
+
 
 @login_required(login_url='/accounts/login')
 def edit_language(request,id,):
@@ -228,6 +226,13 @@ def edit_language(request,id,):
 
         return redirect(reverse("view_langues"))
         """ redirect to langues list """
+
+#@login_required(login_url='/accounts/login')
+class EditLanguage(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = LanguageSerializer
+    queryset = Language.objects.all()
+    lookup_url_kwarg = 'language_id'
 
 @login_required(login_url='/accounts/login')
 def delete_language(request, id ):
@@ -289,11 +294,27 @@ def delete_language(request, id ):
         return redirect(reverse('view_languages'))
         """ redirect to languages  list """   
 
+#@login_required(login_url='/accounts/login')
+class DeleteLanguage(generics.RetrieveDestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = LanguageSerializer
+    queryset = Language.objects.all()
+    lookup_url_kwarg = 'language_id'
+
 @login_required
 def view_profile(request):
 
          
     return render(request, 'profile.html')
+
+#@login_required
+class ProfileDetail(generics.RetrieveAPIView):
+
+    serializer_class = ProfileSerializer
+
+    def get_object(self, queryset=None, **kwargs):
+        item = self.kwargs.get('profile_id')
+        return get_object_or_404(Profile, id=item)
 
 
 @login_required
@@ -306,38 +327,31 @@ def view_single_cv(request,cv_id):
         data={'Resume':Resume}
          
     return render(request, 'single_cv.html', data)
-#
-#@login_required
-#def view_hobbies(request):
-#    form=HobbieForm(request.POST or None)
-#
-#    if form.is_valid():
-#        obj=form.save(commit=False)
-#        obj.author=request.user
-#        obj.save()
-#
-#    try:
-#        hobbies = Hobby.objects.filter(author=request.user.id)
-#        
-#        if hobbies != None:
-#            data = {'hobbies':hobbies,'form':form}
-#            
-#        else: 
-#            data = {'hobbies':[{'title':'No hobbies'}],'form':form}
-#            
-#    except ValueError:
-#         data = {'hobbies':[{'title':'No hobbies'}],'form':form}
-#         print("Unexpected error:", sys.exc_info()[0])
-#         
-#         
-#    return render(request, 'hobbies.html', data)
-#
+
+
+class ResumeDetail(generics.RetrieveAPIView):
+
+    serializer_class = ResumeSerializer
+
+    def get_object(self, queryset=None, **kwargs):
+        item = self.kwargs.get('resume_id')
+        return get_object_or_404(Resume, id=item)
+
+
 @login_required(login_url='/accounts/login')
 def view_hobbies(request):
     """ hobbies of the actual user """
     hobbies = Hobby.objects.filter(author=request.user.id)
     data = {'hobbies':hobbies,  'hobbies_active':"active"}
     return render(request, 'hobbies.html', data)
+
+
+#@login_required(login_url='/accounts/login')
+class HobbyList(generics.ListAPIView):
+    #def hobby(self, request):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = HobbySerializer
+    queryset = Hobby.objects.all()
 
 @login_required(login_url='/accounts/login')
 def add_hobby(request, user):
@@ -366,6 +380,12 @@ def add_hobby(request, user):
         #print(form)
         data = {'form':form}
         return render(request, 'add_hobby.html', data)
+
+#@login_required(login_url='/accounts/login')
+class CreateHobby(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Hobby.objects.all()
+    serializer_class = HobbySerializer
 
 @login_required(login_url='/accounts/login')
 def edit_hobby(request,id):
@@ -475,29 +495,18 @@ def delete_hobby(request, id ):
         return redirect(reverse('view_hobbies'))
         """ redirect to hobbies list """   
 
-##@login_required
-##def view_experiences(request):
-#    form=ExperienceForm(request.POST or None)
-#
-#    if form.is_valid():
-#        obj=form.save(commit=False)
-#        obj.author=request.user
-#        obj.save()
-#
-#    try:
-#        experiences = Experience.objects.filter(author=request.user.id)
-#        
-#        if experiences != None:
-#            data = {'experiences':experiences,'form':form}
-#            
-#        else: 
-#            data = {'experiences':[{'title':'No experiences'}],'form':form}
-#            
-#    except ValueError:
-#         data = {'experiences':[{'title':'No experiences'}],'form':form}
-#         print("Unexpected error:", sys.exc_info()[0])
-#         
-#    return render(request, 'experiences.html', data)
+#@login_required
+class EditHobby(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = HobbySerializer
+    queryset = Hobby.objects.all()
+    lookup_url_kwarg = 'hobby_id'
+#@login_required
+class DeleteHobby(generics.RetrieveDestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = HobbySerializer
+    queryset = Hobby.objects.all()
+    lookup_url_kwarg = 'hobby_id'
 
 @login_required(login_url='/accounts/login')
 def view_experiences(request):
@@ -505,6 +514,41 @@ def view_experiences(request):
     experiences = Experience.objects.filter(author=request.user.id)
     data = {'experiences':experiences,  'experiences_active':"active"}
     return render(request, 'experiences.html', data)
+
+#@login_required
+class ExperienceDetail(generics.RetrieveAPIView):
+
+    serializer_class = ExperienceSerializer
+
+    def get_object(self, queryset=None, **kwargs):
+        item = self.kwargs.get('experience_id')
+        return get_object_or_404(Experience, id=item)
+
+#@login_required(login_url='/accounts/login')
+class ExperienceList(generics.ListAPIView):
+    #def experience(self, request):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ExperienceSerializer
+    queryset = Experience.objects.all()
+
+#@login_required(login_url='/accounts/login')
+class CreateExperience(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Experience.objects.all()
+    serializer_class = ExperienceSerializer
+    
+#@login_required
+class EditExperience(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ExperienceSerializer
+    queryset = Experience.objects.all()
+    lookup_url_kwarg = 'experience_id'
+#@login_required
+class DeleteExperience(generics.RetrieveDestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ExperienceSerializer
+    queryset = Experience.objects.all()
+    lookup_url_kwarg = 'experience_id'
 
 @login_required(login_url='/accounts/login')
 def add_experience(request, user):
@@ -642,33 +686,42 @@ def delete_experience(request, id ):
         return redirect(reverse('view_experiences'))
         """ redirect to experiences  list """   
 
-#
+
 #@login_required
-#def view_formations(request):
-#    form=FormationForm(request.POST or None)
-#
-#    if form.is_valid():
-#        obj=form.save(commit=False)
-#        obj.author=request.user
-#        obj.save()
-#
-#    try:
-#        formations = Education.objects.filter(author=request.user.id)
-#        
-#        if formations != None:
-#            data = {'formations':formations,'form':form}
-#            
-#        else: 
-#            data = {'formations':[{'title':'No formations'}],'form':form}
-#            
-#    except ValueError:
-#         data = {'formations':[{'title':'No formations'}],'form':form}
-#         print("Unexpected error:", sys.exc_info()[0])
-#         
-#    return render(request, 'formations.html', data)
-#
-#
-##
+class EducationDetail(generics.RetrieveAPIView):
+
+    serializer_class = EducationSerializer
+
+    def get_object(self, queryset=None, **kwargs):
+        item = self.kwargs.get('education_id')
+        return get_object_or_404(Education, id=item)
+
+#@login_required(login_url='/accounts/login')
+class EducationList(generics.ListAPIView):
+    #def education(self, request):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = EducationSerializer
+    queryset = Education.objects.all()
+
+#@login_required(login_url='/accounts/login')
+class CreateEducation(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Education.objects.all()
+    serializer_class = EducationSerializer
+
+#@login_required
+class EditEducation(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = EducationSerializer
+    queryset = Education.objects.all()
+    lookup_url_kwarg = 'education_id'
+#@login_required
+class DeleteEducation(generics.RetrieveDestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = EducationSerializer
+    queryset = Education.objects.all()
+    lookup_url_kwarg = 'education_id'
+
 @login_required(login_url='/accounts/login')
 def view_formations(request):
     """ formations of the actual user """
@@ -812,32 +865,44 @@ def delete_formation(request, id ):
         return redirect(reverse('view_formations'))
         """ redirect to formations  list """   
 
-##@login_required
-#def view_skills(request):
-#    form=SkillForm(request.POST or None)
-#    
-#
-#    if form.is_valid():
-#        obj=form.save(commit=False)
-#        obj.author=request.user
-#        obj.save()
-#
-#    try:
-#        
-#        skills = Skill.objects.filter(author=request.user.id)
-#
-#        if skills != None:
-#            data = {'skills':skills,'form':form}
-#            
-#            
-#        else: 
-#            data = {'skills':[{'title':'No skills'}],'form':form}
-#            
-#    except ValueError:
-#         data = {'skills':[{'title':'No skills'}],'form':form}
-#         print("Unexpected error:", sys.exc_info()[0])
-#    return render(request, 'skills.html', data)
-#
+#@login_required
+class SkillDetail(generics.RetrieveAPIView):
+
+    serializer_class = SkillSerializer
+
+    def get_object(self, queryset=None, **kwargs):
+        item = self.kwargs.get('skill_id')
+        print(self.kwargs)
+        return get_object_or_404(Skill, id=item)
+
+#@login_required(login_url='/accounts/login')
+class SkillList(generics.ListAPIView):
+    #def skill(self, request):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = SkillSerializer
+    queryset = Skill.objects.all()
+
+#@login_required(login_url='/accounts/login')
+class CreateSkill(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Skill.objects.all()
+    serializer_class = SkillSerializer
+
+#@login_required
+class EditSkill(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = SkillSerializer
+    queryset = Skill.objects.all()
+    lookup_url_kwarg = 'skill_id'
+
+
+#@login_required
+class DeleteSkill(generics.RetrieveDestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = SkillSerializer
+    queryset = Skill.objects.all()
+    lookup_url_kwarg = 'skill_id'
+
 @login_required(login_url='/accounts/login')
 def view_skills(request):
     """ skills of the actual user """
@@ -1041,3 +1106,52 @@ def delete_langue(request,langue_id):
         return redirect('/langues')             # Finally, redirect to the homepage.
 
     return redirect('/langues')
+
+#@login_required
+class ResumeDetail(generics.RetrieveAPIView):
+
+    serializer_class = ResumeSerializer
+
+    def get_object(self, queryset=None, **kwargs):
+        item = self.kwargs.get('resume_id')
+        return get_object_or_404(Resume, id=item)
+
+#@login_required(login_url='/accounts/login')
+class ResumeList(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ResumeSerializer
+    queryset = Resume.objects.all()
+        
+
+#@login_required(login_url='/accounts/login')
+class CreateResume(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    queryset = Resume.objects.all()
+    serializer_class = ResumeSerializer
+
+#@login_required
+class EditResume(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ResumeSerializer
+    queryset = Resume.objects.all()
+    lookup_url_kwarg = 'resume_id'
+#@login_required
+class DeleteResume(generics.RetrieveDestroyAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ResumeSerializer
+    queryset = Resume.objects.all()
+    lookup_url_kwarg = 'resume_id'
+
+class HobbyDetail(generics.RetrieveAPIView):
+
+    serializer_class = HobbySerializer
+
+    def get_object(self, queryset=None, **kwargs):
+        item = self.kwargs.get('hobby_id')
+        return get_object_or_404(Hobby, id=item)
+
+class LanguageList(generics.ListAPIView):
+#    def resume(self, request):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = LanguageSerializer
+    queryset = Language.objects.all()

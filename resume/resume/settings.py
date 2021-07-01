@@ -38,14 +38,15 @@ ACCOUNT_EMAIL_VERIFICATION="mandatory"
 
 
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = DEFAULT_FROM_EMAIL = 'wassildahi@gmail.com'
-EMAIL_HOST_PASSWORD = 'Xbttjm52@00'
+EMAIL_HOST = 'smtp.mailtrap.io'
+EMAIL_PORT = '2525'
+EMAIL_HOST_USER = DEFAULT_FROM_EMAIL = '8035cd4728e222'
+EMAIL_HOST_PASSWORD = 'b2227ff8fc7fb3'
 
 # Application definition
 
 INSTALLED_APPS = [
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -57,7 +58,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'wkhtmltopdf',
+    
 ]
 
 
