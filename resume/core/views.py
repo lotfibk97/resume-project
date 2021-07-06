@@ -351,7 +351,8 @@ class HobbyList(generics.ListAPIView):
     #def hobby(self, request):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = HobbySerializer
-    queryset = Hobby.objects.all()
+    def get_queryset(self):
+        return Hobby.objects.filter(author = self.request.user)
 
 @login_required(login_url='/accounts/login')
 def add_hobby(request, user):
@@ -529,7 +530,9 @@ class ExperienceList(generics.ListAPIView):
     #def experience(self, request):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ExperienceSerializer
-    queryset = Experience.objects.all()
+    def get_queryset(self):
+        print(self.request)
+        return Experience.objects.filter(author = self.request.user)
 
 #@login_required(login_url='/accounts/login')
 class CreateExperience(generics.CreateAPIView):
@@ -701,7 +704,8 @@ class EducationList(generics.ListAPIView):
     #def education(self, request):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = EducationSerializer
-    queryset = Education.objects.all()
+    def get_queryset(self):
+        return Education.objects.filter(author = self.request.user)
 
 #@login_required(login_url='/accounts/login')
 class CreateEducation(generics.CreateAPIView):
@@ -880,7 +884,8 @@ class SkillList(generics.ListAPIView):
     #def skill(self, request):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = SkillSerializer
-    queryset = Skill.objects.all()
+    def get_queryset(self):
+        return Skill.objects.filter(author = self.request.user)
 
 #@login_required(login_url='/accounts/login')
 class CreateSkill(generics.CreateAPIView):
@@ -1120,7 +1125,8 @@ class ResumeDetail(generics.RetrieveAPIView):
 class ResumeList(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = ResumeSerializer
-    queryset = Resume.objects.all()
+    def get_queryset(self):
+        return Resume.objects.filter(author = self.request.user)
         
 
 #@login_required(login_url='/accounts/login')
