@@ -136,7 +136,7 @@ icalendar==4.0.3
 icmplib==2.1.1
 idna==2.8
 imageio==2.4.1
-impacket==0.9.22
+impacket==0.9.23
 importlib-metadata==1.6.0
 incremental==17.5.0
 instaloader==4.4.5
